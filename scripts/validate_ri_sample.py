@@ -26,8 +26,14 @@ def independent_coverage_for_town(town_row, lidar_frame) -> float:
 
 def main() -> None:
     base = Path(__file__).resolve().parents[1]
-    towns = prepare_cousub(read_vector(base / "data" / "cache" / "census" / "tl_2024_44_cousub.zip"), "RI")
-    lidar = prepare_lidar(read_vector(base / "data" / "cache" / "usgs" / "resources.geojson"), min_year=2015)
+    towns = prepare_cousub(
+        read_vector(base / "data" / "cache" / "census" / "tl_2024_44_cousub.zip"),
+        "RI",
+    )
+    lidar = prepare_lidar(
+        read_vector(base / "data" / "cache" / "usgs" / "resources.geojson"),
+        min_year=2015,
+    )
     all_results, _ = compute_coverage(towns, lidar, coverage_threshold=5.0)
 
     sample_geoids = [

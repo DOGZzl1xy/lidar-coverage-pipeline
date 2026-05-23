@@ -1,0 +1,13 @@
+# Reproducible six-state batch configuration.
+states:
+  - RI
+  - MA
+  - PA
+  - CA
+  - TX
+  - FL
+
+min_year: 2015
+coverage_threshold: 5.0
+cache_dir: data/cache
+output_dir: outputs

@@ -9,6 +9,7 @@ dependencies = [
     "pandas>=2.2.3",
     "pyogrio>=0.10.0",
     "pyproj>=3.7.0",
+    "PyYAML>=6.0.2",
     "requests>=2.32.3",
     "shapely>=2.0.7",
 ]
@@ -28,4 +29,13 @@ packages = ["src/lidar_coverage"]
 package = true
 
 [dependency-groups]
-dev = []
+dev = [
+    "ruff>=0.11.0",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP"]
