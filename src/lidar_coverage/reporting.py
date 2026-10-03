@@ -2,10 +2,17 @@
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
 import geopandas as gpd
 import pandas as pd
+
+from lidar_coverage.constants import STATE_PROGRAM_NOTES
+
+MANIFEST_NAME = "run_manifest.json"
+UNRESOLVED_NAME = "unresolved_collections.csv"
+UNRESOLVED_COLUMNS = ["id", "lidar_name", "collection_key", "url"]
 
 CSV_COLUMNS = [
     "GEOID",
@@ -27,6 +34,23 @@ BATCH_COLUMNS = [
     "min_coverage_pct",
     "max_coverage_pct",
 ]
+
+
+def state_output_paths(output_dir: Path, state_abbr: str) -> dict[str, Path]:
+    prefix = state_abbr.lower()
+    return {
+        "all_csv": output_dir / f"{prefix}_cousub_coverage_all.csv",
+        "gap_csv": output_dir / f"{prefix}_cousub_coverage_under_threshold.csv",
+        "all_geojson": output_dir / f"{prefix}_cousub_coverage_all.geojson",
+        "gap_geojson": output_dir / f"{prefix}_cousub_coverage_under_threshold.geojson",
+        "markdown": output_dir / f"{prefix}_coverage_summary.md",
+    }
+
+
+def write_json(payload: dict, destination: Path) -> Path:
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    destination.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
+    return destination
 
 
 def write_csv(frame: pd.DataFrame, destination: Path) -> Path:
@@ -86,6 +110,9 @@ def build_markdown_summary(
         "",
     ]
 
+    if state_abbr in STATE_PROGRAM_NOTES:
+        lines.extend([f"> **Data source note:** {STATE_PROGRAM_NOTES[state_abbr]}", ""])
+
     if below == 0:
         lines.extend(["No county subdivisions fell below the coverage threshold.", ""])
         return "\n".join(lines)
@@ -122,12 +149,16 @@ def build_batch_markdown_summary(
     threshold: float,
     min_year: int,
 ) -> str:
+    total = int(batch_summary["county_subdivisions_analyzed"].sum())
+    below = int(batch_summary["county_subdivisions_below_threshold"].sum())
     lines = [
         "# Multi-State County Subdivision LiDAR Coverage",
         "",
         f"- Modern LiDAR minimum vintage: `{min_year}`",
         f"- Coverage gap threshold: `< {threshold:.1f}%`",
         f"- States analyzed: `{len(batch_summary)}`",
+        f"- County subdivisions analyzed: `{total}`",
+        f"- County subdivisions below threshold: `{below}`",
         "",
         "| State | County Subdivisions | Below Threshold | Mean Coverage % | "
         "Min Coverage % | Max Coverage % |",
@@ -144,6 +175,11 @@ def build_batch_markdown_summary(
         )
 
     lines.append("")
+    noted = [state for state in batch_summary["state"] if state in STATE_PROGRAM_NOTES]
+    if noted:
+        lines.extend(["## Data Source Notes", ""])
+        lines.extend(f"- **{state}:** {STATE_PROGRAM_NOTES[state]}" for state in noted)
+        lines.append("")
     return "\n".join(lines)
 
 

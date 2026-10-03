@@ -1,4 +1,4 @@
-# Reproducible six-state batch configuration.
+# Six-state validation batch (RI MA PA CA TX FL).
 states:
   - RI
   - MA
@@ -10,4 +10,7 @@ states:
 min_year: 2015
 coverage_threshold: 5.0
 cache_dir: data/cache
-output_dir: outputs
+output_dir: outputs_six_state
+# Always pull the latest hobuinc/usgs-lidar inventory (~9 MB); hashes go to run_manifest.json.
+refresh_inventory: true
+vintage_overrides: data/reference/vintage_overrides_reviewed.csv

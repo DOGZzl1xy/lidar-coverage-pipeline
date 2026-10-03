@@ -1,0 +1,54 @@
+collection_key,start_year,end_year,review_id,evidence
+mn_fullstate,2011,2012,A1,EPT point GpsTime sample 2026-10-03: 2011-05..2012-11 (81% 2011). MN Gen2 2021-24 is a separate dataset
+ky_fullstate,2010,2017,A2,"EPT sample: 53% dated 2010-04..2017 (p99; 57% of dated points 2015+), 47% GPS week time (undated); mixed mosaic spanning 2015 -> modern under latest-year policy"
+ia_fullstate,2010,2010,A3,EPT sample: 100% GPS week time (no date; pre-LAS1.4/3DEP convention) -> 2007-2010 statewide; 2018-20 Iowa data are separate IA_* collections
+ny_newyorkcity,2014,2014,A4,"EPT sample: 2014-03-22..2014-04-21 (p01-p99), trace 2013-08"
+il_dot_district_7_lidar,2010,2010,A5,EPT sample: 2010-12-07..2011-04-14
+il_twelve_counties_mchenry,2008,2008,A6,EPT sample: 2008-05-05..2008-05-24
+il_12counties_rock_islandco,2009,2009,A7,"EPT sample: 2009-05-10..2009-05-16 (p01-p99), 0.9% 2007"
+az_usfs_3dep_processing_2019,2013,2014,B1,USFS record 2013-08-24..2014-10-12; EPT sample identical
+il_fordiroquoislivingston_l1_2014,2015,2015,B2,OpenTopography/USGS 2015-04-27..2015-06-07
+il_fordiroquoislivingston_l2_2014,2015,2015,B3,OpenTopography/USGS 2015-04-27..2015-06-07
+il_fordiroquoislivingston_l3_2014,2015,2015,B5,OpenTopography/USGS 2015-04-27..2015-06-07
+il_fordiroquoislivingston_l4_2014,2015,2015,B4,OpenTopography/USGS 2015-04-27..2015-06-07
+ma_ne_cmgp_sandy_z19_a1_2015,2013,2014,B6,OpenTopography/USGS 2013-11-16..2014-12-31
+ma_ne_cmgp_sandy_z19_a2_2015,2013,2014,B7,OpenTopography/USGS 2013-11-16..2014-12-31
+or_harneysilver_1_2020,2014,2017,B8,"USGS 2014-10-15..2017-08-29; EPT sample identical (66% 2014, 32% 2017); mixed across threshold"
+or_harneysilver_2_2020,2014,2017,B9,USGS 2014-10-31..2017-09-11; mixed across threshold
+id_emeraldcreek_2004,2004,2004,B10,Idaho Lidar Consortium: July 2004 (no GpsTime in point format)
+id_jackwaite_2007,2007,2007,B11,Idaho Lidar Consortium: October 2007
+il_boone_2018,2018,2018,B12,NOAA InPort 2018-04-24/25/28; EPT sample 2018-04-23..28; official 2011 rejected
+il_district4_mcdonough_2014,2011,2012,B13,EPT sample 2011-04-14..2012-06-18 (94% 2012); state catalog lists 2012
+il_district4_warren_2014,2011,2012,B14,EPT sample 2011-04-13..2012-04-25 (92% 2012); state catalog lists 2012
+il_jacksonco_2015,2014,2014,B15,OpenTopography/USGS 2014-04-02..2014-04-30
+il_perryco_2015,2014,2014,B16,OpenTopography/USGS 2014-04-02..2014-04-30
+ks_scentral_l4_2015,2014,2015,B17,OpenTopography/USGS 2014-11-29..2015-03-15; mixed across threshold
+md_garret_co_2014,2015,2015,B18,OpenTopography/NOAA 2015-04-12..2015-05-04
+mi_13co_vanburrenco_2015,2014,2014,B19,NOAA 2014-12-07..2014-12-23
+mi_leelanauco_2015,2014,2014,B20,OpenTopography/USGS 2014-12-06..2014-12-23
+mi_manisteeco_2015,2015,2015,B21,EPT sample 2015-04-24..2015-04-30; official 2014 rejected
+mn_phase_jacksonco_2011,2010,2010,B22,MN state record: Southwest collection spring/fall 2010; EPT GPS week time (consistent with pre-2011)
+mo_ar_mercer_grundy_2014,2015,2015,B23,OpenTopography/USGS 2015-01-23..2015-01-26
+nc_sandy_l13_2014,2014,2014,B24,EPT sample 2014-01-26..2014-03-21; official 2015 rejected
+nd_kidderco_2014,2015,2015,B25,Collection report 2015-04-23..2015-05-18
+tx_archer_jack_2014,2015,2015,B26,OpenTopography/USGS 2015-01-04..2015-03-12
+ca_sandiegoql2_2014,2014,2014,C1,"EPT sample 2014-10-27..2014-11-28 (p01-p99), 0.0% of points 2015+; official 2014-2015; official end not supported by points"
+mo_ar_capegirardeau_stoddard_utm15_2013,2013,2015,C2,"EPT sample 2013-12-31..2015-03-21 (p01-p99), 7.3% of points 2015+; official 2013-2015"
+ca_sandiegoql1_2014,2014,2014,C3,"EPT sample 2014-12-05..2014-12-05 (p01-p99), 0.0% of points 2015+; official 2014-2015; official end not supported by points"
+fl_peaceriver_2014,2014,2014,C4,"EPT sample 2014-11-30..2014-12-06 (p01-p99), 0.0% of points 2015+; official 2014-2015; official end not supported by points"
+il_christianco_2014,2014,2015,C5,"EPT sample 2014-12-03..2015-03-12 (p01-p99), 55.3% of points 2015+; official 2014-2015"
+md_pa_sandysupp_2014,2014,2014,C6,"EPT sample 2014-12-07..2014-12-31 (p01-p99), 0.2% of points 2015+; official 2014-2015; official end not supported by points"
+mn_phase1_lincolnco_2010,2010,2010,C7,"EPT sample: 100% GPS week time (undated, pre-2011 convention); official 2010-2016 not supported; name year kept"
+mo_ar_miss_stoddard_utm15_2014,2014,2015,C8,"EPT sample 2014-04-17..2015-02-13 (p01-p99), 97.2% of points 2015+; official 2014-2015"
+mo_ar_miss_stoddard_utm16_2014,2014,2015,C9,"EPT sample 2014-02-21..2015-02-15 (p01-p99), 64.3% of points 2015+; official 2014-2015"
+mo_ar_monroe_lee_phillips_2014,2014,2015,C10,"EPT sample 2014-03-07..2015-03-24 (p01-p99), 67.5% of points 2015+; official 2014-2015"
+mo_ar_schuyler_scott_2014,2014,2014,C11,"EPT sample 2014-04-22..2014-04-26 (p01-p99), 0.0% of points 2015+; official 2014-2016; official end not supported by points"
+ms_laurel_2014,2014,2014,C12,"EPT sample 2014-01-14..2014-02-16 (p01-p99), 0.0% of points 2015+; official 2014-2015; official end not supported by points"
+ok_cache_l5_2014,2014,2015,C13,"EPT sample 2014-12-08..2015-01-17 (p01-p99), 58.6% of points 2015+; official 2014-2015"
+vt_e_vermont_l2_2014,2015,2015,C14,"EPT sample 2015-05-08..2015-10-31 (p01-p99), 100.0% of points 2015+; official 2014-2015"
+vt_easternvermont_l1_2014,2014,2015,C15,"EPT sample 2014-11-08..2015-05-09 (p01-p99), 71.8% of points 2015+; official 2014-2015"
+vt_rutlandco_lot6_2013,2013,2014,C16,"EPT sample 2013-11-04..2014-06-01 (p01-p99), 0.0% of points 2015+; official 2013-2016; official end not supported by points"
+vt_rutland_lot7_2014,2014,2014,C17,"EPT sample 2014-05-07..2014-11-06 (p01-p99), 0.4% of points 2015+; official 2013-2015; official end not supported by points"
+vt_rutland_lot8_2013,2013,2015,C18,"EPT sample 2013-11-20..2015-05-14 (p01-p99), 16.0% of points 2015+; official 2013-2015"
+wa_elwhariver_2014,2014,2015,C19,"EPT sample 2014-11-07..2015-02-23 (p01-p99), 40.8% of points 2015+; official 2014-2015"
+wa_glacierpeak_2014,2014,2015,C20,"EPT sample 2014-08-25..2015-06-22 (p01-p99), 25.5% of points 2015+; official 2014-2015"

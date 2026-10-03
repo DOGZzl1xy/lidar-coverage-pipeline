@@ -56,6 +56,11 @@ STATE_TO_FIPS = {
     "WY": "56",
 }
 
+# Contiguous 48 states plus DC; excludes AK, HI, and territories.
+NON_CONUS_STATES = frozenset({"AK", "HI"})
+CONUS_STATES = tuple(state for state in STATE_TO_FIPS if state not in NON_CONUS_STATES)
+STATE_GROUPS = {"CONUS": CONUS_STATES}
+
 TARGET_CRS = "EPSG:5070"
 CENSUS_TIGER_YEAR = 2024
 CENSUS_COUSUB_URL_TEMPLATE = (
@@ -64,4 +69,24 @@ CENSUS_COUSUB_URL_TEMPLATE = (
 USGS_LIDAR_METADATA_URL = (
     "https://raw.githubusercontent.com/hobuinc/usgs-lidar/master/boundaries/resources.geojson"
 )
+USGS_WORKUNIT_QUERY_URL = (
+    "https://index.nationalmap.gov/arcgis/rest/services/3DEPElevationIndex/MapServer/8/query"
+)
+DEFAULT_MIN_YEAR = 2015
 DEFAULT_COVERAGE_THRESHOLD = 5.0
+
+# Newer state-run LiDAR programs that are not (fully) in the USGS inventory.
+# Reported in summaries so gap counts are read against the right source.
+STATE_PROGRAM_NOTES = {
+    "MN": (
+        "Minnesota's statewide Gen2 LiDAR (collected 2021-2024, MnGeo: "
+        "https://mn.gov/mngeo/gis-data-and-maps/info-by-topic/elevation/lidar/lidar-gen2.jsp) "
+        "is only partly in the USGS inventory used here; `MN_FullState` is the 2011-2012 "
+        "generation. Gaps may be covered by Gen2 data."
+    ),
+    "KY": (
+        "KyFromAbove (https://kyfromabove.ky.gov/) has flown the state three times; Phase 2 "
+        "(~2024) and Phase 3 (~2025-2026) are not in the USGS inventory used here "
+        "(`KY_FullState` is the 2010-2018 Phase 1 mosaic). Gaps may be covered by state data."
+    ),
+}

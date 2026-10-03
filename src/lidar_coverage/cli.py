@@ -3,40 +3,18 @@
 from __future__ import annotations
 
 import argparse
-from dataclasses import dataclass
+import sys
 from pathlib import Path
 
-import pandas as pd
 import yaml
 
-from lidar_coverage.analysis import compute_coverage
-from lidar_coverage.constants import DEFAULT_COVERAGE_THRESHOLD, STATE_TO_FIPS
-from lidar_coverage.io import (
-    download_census_cousub,
-    download_usgs_lidar_metadata,
-    ensure_directory,
-    read_vector,
+from lidar_coverage.constants import (
+    DEFAULT_COVERAGE_THRESHOLD,
+    DEFAULT_MIN_YEAR,
+    STATE_GROUPS,
+    STATE_TO_FIPS,
 )
-from lidar_coverage.preprocess import prepare_cousub, prepare_lidar
-from lidar_coverage.reporting import (
-    BATCH_COLUMNS,
-    build_batch_markdown_summary,
-    build_markdown_summary,
-    format_output_table,
-    summarize_state,
-    write_csv,
-    write_geojson,
-    write_markdown,
-)
-
-
-@dataclass(frozen=True)
-class RunOptions:
-    states: list[str]
-    cache_dir: Path
-    output_dir: Path
-    min_year: int
-    coverage_threshold: float
+from lidar_coverage.pipeline import RunOptions, run_pipeline, run_preflight
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -48,32 +26,54 @@ def build_parser() -> argparse.ArgumentParser:
     state_group.add_argument(
         "--states",
         nargs="+",
-        help="Two-letter state abbreviations to process as a batch.",
+        help="State abbreviations to process as a batch; 'CONUS' expands to the 48 states + DC.",
     )
     parser.add_argument(
         "--config",
         type=Path,
         help="YAML configuration file; command-line arguments take precedence.",
     )
-    parser.add_argument(
-        "--cache-dir",
-        type=Path,
-        help="Directory used for downloaded source data.",
-    )
-    parser.add_argument(
-        "--output-dir",
-        type=Path,
-        help="Directory used for CSV and Markdown outputs.",
-    )
-    parser.add_argument(
-        "--min-year",
-        type=int,
-        help="Minimum LiDAR vintage year to retain.",
-    )
+    parser.add_argument("--cache-dir", type=Path, help="Directory for downloaded source data.")
+    parser.add_argument("--output-dir", type=Path, help="Directory for generated outputs.")
+    parser.add_argument("--min-year", type=int, help="Minimum LiDAR vintage year to retain.")
     parser.add_argument(
         "--coverage-threshold",
         type=float,
         help="Coverage percentage threshold for reporting gaps.",
+    )
+    parser.add_argument(
+        "--vintage-overrides",
+        type=Path,
+        help="CSV of authoritative collection_key,start_year values (see fetch_usgs_workunits).",
+    )
+    parser.add_argument(
+        "--refresh-cache",
+        action="store_true",
+        default=None,
+        help="Re-download source files even when cached copies exist.",
+    )
+    parser.add_argument(
+        "--refresh-inventory",
+        action="store_true",
+        default=None,
+        help="Re-download only the LiDAR inventory (keeps cached Census files).",
+    )
+    parser.add_argument(
+        "--supplement-3dep-index",
+        action="store_true",
+        default=None,
+        help="Add official USGS 3DEP work-unit footprints to the hobuinc inventory.",
+    )
+    parser.add_argument(
+        "--skip-existing",
+        action="store_true",
+        default=None,
+        help="Reuse per-state outputs already present in the output directory.",
+    )
+    parser.add_argument(
+        "--preflight",
+        action="store_true",
+        help="Run metadata-only readiness checks and exit without spatial analysis.",
     )
     return parser
 
@@ -88,17 +88,36 @@ def load_config(path: Path | None) -> dict[str, object]:
     return config
 
 
-def _normalize_states(states: list[str]) -> list[str]:
+def normalize_states(states: list[str]) -> list[str]:
     if not states:
         raise ValueError("At least one state abbreviation is required.")
     normalized: list[str] = []
     for state in states:
         state_abbr = str(state).upper()
-        if state_abbr not in STATE_TO_FIPS:
-            raise ValueError(f"Unknown state abbreviation: {state_abbr}")
-        if state_abbr not in normalized:
-            normalized.append(state_abbr)
+        expanded = STATE_GROUPS.get(state_abbr, (state_abbr,))
+        for code in expanded:
+            if code not in STATE_TO_FIPS:
+                raise ValueError(f"Unknown state abbreviation: {code}")
+            if code not in normalized:
+                normalized.append(code)
     return normalized
+
+
+def _configured_states(config: dict[str, object]) -> list[str]:
+    if "states" in config:
+        configured = config["states"]
+        if isinstance(configured, str):
+            return [configured]
+        if not isinstance(configured, list):
+            raise ValueError("Configuration value 'states' must be a list or a group name.")
+        return [str(state) for state in configured]
+    if "state" in config:
+        return [str(config["state"])]
+    return ["RI"]
+
+
+def _pick(cli_value, config: dict[str, object], key: str, default):
+    return cli_value if cli_value is not None else config.get(key, default)
 
 
 def resolve_options(args: argparse.Namespace) -> RunOptions:
@@ -107,114 +126,53 @@ def resolve_options(args: argparse.Namespace) -> RunOptions:
         states = [args.state]
     elif args.states:
         states = args.states
-    elif "states" in config:
-        configured_states = config["states"]
-        if not isinstance(configured_states, list):
-            raise ValueError("Configuration value 'states' must be a list.")
-        states = [str(state) for state in configured_states]
-    elif "state" in config:
-        states = [str(config["state"])]
     else:
-        states = ["RI"]
+        states = _configured_states(config)
 
-    min_year = args.min_year if args.min_year is not None else int(config.get("min_year", 2015))
-    coverage_threshold = (
-        args.coverage_threshold
-        if args.coverage_threshold is not None
-        else float(config.get("coverage_threshold", DEFAULT_COVERAGE_THRESHOLD))
+    min_year = int(_pick(args.min_year, config, "min_year", DEFAULT_MIN_YEAR))
+    coverage_threshold = float(
+        _pick(args.coverage_threshold, config, "coverage_threshold", DEFAULT_COVERAGE_THRESHOLD)
     )
     if min_year < 0:
         raise ValueError("Minimum LiDAR vintage year must be non-negative.")
     if not 0.0 <= coverage_threshold <= 100.0:
         raise ValueError("Coverage threshold must be within 0-100.")
 
+    overrides = _pick(args.vintage_overrides, config, "vintage_overrides", None)
+    if overrides is not None and not Path(overrides).exists():
+        raise ValueError(f"Vintage override file not found: {overrides}")
+
     return RunOptions(
-        states=_normalize_states(states),
-        cache_dir=args.cache_dir or Path(str(config.get("cache_dir", "data/cache"))),
-        output_dir=args.output_dir or Path(str(config.get("output_dir", "outputs"))),
+        states=normalize_states(states),
+        cache_dir=Path(str(_pick(args.cache_dir, config, "cache_dir", "data/cache"))),
+        output_dir=Path(str(_pick(args.output_dir, config, "output_dir", "outputs"))),
         min_year=min_year,
         coverage_threshold=coverage_threshold,
-    )
-
-
-def _write_state_outputs(
-    state_abbr: str,
-    all_results: pd.DataFrame,
-    gap_results: pd.DataFrame,
-    *,
-    output_dir: Path,
-    threshold: float,
-) -> None:
-    state_prefix = state_abbr.lower()
-    full_csv = output_dir / f"{state_prefix}_cousub_coverage_all.csv"
-    gap_csv = output_dir / f"{state_prefix}_cousub_coverage_under_threshold.csv"
-    full_geojson = output_dir / f"{state_prefix}_cousub_coverage_all.geojson"
-    gap_geojson = output_dir / f"{state_prefix}_cousub_coverage_under_threshold.geojson"
-    markdown_path = output_dir / f"{state_prefix}_coverage_summary.md"
-
-    write_csv(format_output_table(all_results), full_csv)
-    write_csv(format_output_table(gap_results), gap_csv)
-    write_geojson(all_results, full_geojson)
-    write_geojson(gap_results, gap_geojson)
-    write_markdown(
-        build_markdown_summary(
-            state_abbr,
-            all_results,
-            gap_results,
-            threshold=threshold,
+        vintage_overrides=Path(overrides) if overrides is not None else None,
+        refresh_cache=bool(_pick(args.refresh_cache, config, "refresh_cache", False)),
+        refresh_inventory=bool(_pick(args.refresh_inventory, config, "refresh_inventory", False)),
+        supplement_3dep_index=bool(
+            _pick(args.supplement_3dep_index, config, "supplement_3dep_index", False)
         ),
-        markdown_path,
+        skip_existing=bool(_pick(args.skip_existing, config, "skip_existing", False)),
     )
-
-
-def run_pipeline(options: RunOptions) -> pd.DataFrame:
-    cache_dir = ensure_directory(options.cache_dir)
-    output_dir = ensure_directory(options.output_dir)
-    lidar_path = download_usgs_lidar_metadata(cache_dir)
-    lidar = prepare_lidar(read_vector(lidar_path), min_year=options.min_year)
-
-    summaries: list[dict[str, str | int | float]] = []
-    for state_abbr in options.states:
-        census_path = download_census_cousub(state_abbr, cache_dir)
-        towns = prepare_cousub(read_vector(census_path), state_abbr)
-        all_results, gap_results = compute_coverage(
-            towns,
-            lidar,
-            coverage_threshold=options.coverage_threshold,
-            min_year=options.min_year,
-        )
-        _write_state_outputs(
-            state_abbr,
-            all_results,
-            gap_results,
-            output_dir=output_dir,
-            threshold=options.coverage_threshold,
-        )
-        summaries.append(summarize_state(state_abbr, all_results, gap_results))
-        print(
-            f"{state_abbr}: analyzed {len(all_results)} county subdivisions; "
-            f"{len(gap_results)} below {options.coverage_threshold:.1f}%."
-        )
-
-    batch_summary = pd.DataFrame(summaries, columns=BATCH_COLUMNS)
-    write_csv(batch_summary, output_dir / "batch_summary.csv")
-    write_markdown(
-        build_batch_markdown_summary(
-            batch_summary,
-            threshold=options.coverage_threshold,
-            min_year=options.min_year,
-        ),
-        output_dir / "batch_summary.md",
-    )
-    return batch_summary
 
 
 def main() -> None:
     parser = build_parser()
+    args = parser.parse_args()
     try:
-        options = resolve_options(parser.parse_args())
+        options = resolve_options(args)
     except (OSError, TypeError, ValueError, yaml.YAMLError) as error:
         parser.error(str(error))
+
+    if args.preflight:
+        problems = run_preflight(options)
+        if problems:
+            print("Preflight failed:\n- " + "\n- ".join(problems), file=sys.stderr)
+            raise SystemExit(1)
+        print("Preflight passed.")
+        return
     run_pipeline(options)
 
 
