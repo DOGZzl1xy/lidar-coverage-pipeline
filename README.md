@@ -4,6 +4,9 @@ Identifies U.S. Census county subdivisions (COUSUB) with no modern LiDAR
 coverage, or with modern coverage below a configurable threshold. It runs for
 one state, a list of states, or the contiguous 48 states plus DC (`CONUS`).
 
+Latest results: [CONUS LiDAR gap report](https://dogzzl1xy.github.io/lidar-coverage-pipeline/)
+(source: `docs/index.html`).
+
 Current status, validation evidence, and open work are tracked in
 [`Progress.md`](Progress.md); the stable analysis and output contract is in
 [`SPEC.md`](SPEC.md).
