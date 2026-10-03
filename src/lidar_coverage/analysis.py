@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import geopandas as gpd
 
-from lidar_coverage.constants import DEFAULT_COVERAGE_THRESHOLD
+from lidar_coverage.constants import DEFAULT_COVERAGE_THRESHOLD, DEFAULT_MIN_YEAR
 
 RESULT_COLUMNS = [
     "GEOID",
@@ -20,9 +20,13 @@ RESULT_COLUMNS = [
 ]
 
 
-def build_vintage_note(years: list[int], *, min_year: int = 2015) -> str:
+def no_coverage_note(min_year: int = DEFAULT_MIN_YEAR) -> str:
+    return f"No intersecting {min_year}+ LiDAR batches"
+
+
+def build_vintage_note(years: list[int], *, min_year: int = DEFAULT_MIN_YEAR) -> str:
     if not years:
-        return f"No intersecting {min_year}+ LiDAR batches"
+        return no_coverage_note(min_year)
 
     distinct_years = sorted(set(years))
     if len(distinct_years) == 1:
@@ -38,14 +42,15 @@ def _finalize_results(
     result: gpd.GeoDataFrame,
     *,
     coverage_threshold: float,
-    min_year: int = 2015,
+    min_year: int,
 ) -> tuple[gpd.GeoDataFrame, gpd.GeoDataFrame]:
-    result["covered_area_m2"] = result["covered_area_m2"].fillna(0.0).clip(lower=0.0)
+    for column in ("covered_area_m2", "lidar_batch_count", "data_vintage_note"):
+        if column not in result.columns:
+            result[column] = None
+    result["covered_area_m2"] = result["covered_area_m2"].astype(float).fillna(0.0).clip(lower=0.0)
     result["covered_area_m2"] = result[["covered_area_m2", "base_area_m2"]].min(axis=1)
     result["lidar_batch_count"] = result["lidar_batch_count"].fillna(0).astype(int)
-    result["data_vintage_note"] = result["data_vintage_note"].fillna(
-        f"No intersecting {min_year}+ LiDAR batches"
-    )
+    result["data_vintage_note"] = result["data_vintage_note"].fillna(no_coverage_note(min_year))
     result["gap_area_m2"] = (result["base_area_m2"] - result["covered_area_m2"]).clip(lower=0.0)
     result["coverage_pct"] = (
         (result["covered_area_m2"] / result["base_area_m2"] * 100)
@@ -69,31 +74,26 @@ def compute_coverage(
     lidar: gpd.GeoDataFrame,
     *,
     coverage_threshold: float = DEFAULT_COVERAGE_THRESHOLD,
-    min_year: int = 2015,
+    min_year: int = DEFAULT_MIN_YEAR,
 ) -> tuple[gpd.GeoDataFrame, gpd.GeoDataFrame]:
-    towns = towns.copy()
-    lidar = lidar.copy()
+    """Measure unioned modern LiDAR coverage for each county subdivision.
 
+    ``lidar_batch_count`` counts distinct ``collection_key`` values so that
+    inventory aliases of one collection are counted once.
+    """
     if towns.empty:
         raise ValueError("No county subdivisions available for analysis.")
 
-    no_coverage_note = f"No intersecting {min_year}+ LiDAR batches"
-
+    towns = towns.copy()
+    finalize = {"coverage_threshold": coverage_threshold, "min_year": min_year}
     if lidar.empty:
-        towns["covered_area_m2"] = 0.0
-        towns["gap_area_m2"] = towns["base_area_m2"]
-        towns["coverage_pct"] = 0.0
-        towns["lidar_batch_count"] = 0
-        towns["data_vintage_note"] = no_coverage_note
-        return _finalize_results(towns, coverage_threshold=coverage_threshold, min_year=min_year)
+        return _finalize_results(towns, **finalize)
 
-    lidar_subset = lidar[["id", "lidar_name", "year", "geometry"]].copy()
-    town_subset = towns[["GEOID", "town_name", "state", "base_area_m2", "geometry"]].copy()
-
-    town_footprint = town_subset.geometry.union_all()
-    candidate_lidar = lidar_subset.loc[lidar_subset.intersects(town_footprint)].reset_index(
-        drop=True
-    )
+    lidar_subset = lidar[["collection_key", "year", "geometry"]]
+    town_subset = towns[["GEOID", "geometry"]]
+    candidate_lidar = lidar_subset.loc[
+        lidar_subset.intersects(town_subset.geometry.union_all())
+    ].reset_index(drop=True)
 
     intersections = gpd.overlay(
         town_subset,
@@ -101,21 +101,14 @@ def compute_coverage(
         how="intersection",
         keep_geom_type=False,
     )
-
     if intersections.empty:
-        towns["covered_area_m2"] = 0.0
-        towns["lidar_batch_count"] = 0
-        towns["data_vintage_note"] = no_coverage_note
-        return _finalize_results(towns, coverage_threshold=coverage_threshold, min_year=min_year)
+        return _finalize_results(towns, **finalize)
 
-    coverage_union = intersections.dissolve(by="GEOID")
-    coverage_area = coverage_union.geometry.area.rename("covered_area_m2")
-
-    batch_counts = (
-        intersections.groupby("GEOID")["lidar_name"].nunique().rename("lidar_batch_count")
-    )
+    grouped = intersections.groupby("GEOID")
+    coverage_area = intersections.dissolve(by="GEOID").geometry.area.rename("covered_area_m2")
+    batch_counts = grouped["collection_key"].nunique().rename("lidar_batch_count")
     vintage_notes = (
-        intersections.groupby("GEOID")["year"]
+        grouped["year"]
         .apply(
             lambda values: build_vintage_note(
                 [int(value) for value in values.dropna()], min_year=min_year
@@ -132,4 +125,4 @@ def compute_coverage(
         .reset_index()
     )
     result = gpd.GeoDataFrame(result, geometry="geometry", crs=towns.crs)
-    return _finalize_results(result, coverage_threshold=coverage_threshold, min_year=min_year)
+    return _finalize_results(result, **finalize)

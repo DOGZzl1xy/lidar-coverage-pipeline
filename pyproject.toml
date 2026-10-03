@@ -1,6 +1,6 @@
 [project]
 name = "lidar-coverage"
-version = "0.1.0"
+version = "0.2.0"
 description = "Pipeline for identifying U.S. Census county subdivisions lacking modern LiDAR coverage."
 readme = "README.md"
 requires-python = ">=3.12"
@@ -31,6 +31,9 @@ package = true
 [dependency-groups]
 dev = [
     "ruff>=0.11.0",
+]
+verify = [
+    "laspy[lazrs]>=2.5.0",
 ]
 
 [tool.ruff]
