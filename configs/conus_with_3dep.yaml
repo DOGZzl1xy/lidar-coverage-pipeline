@@ -1,12 +1,6 @@
-# CONUS + DC using the hobuinc inventory plus official USGS 3DEP work-unit
-# footprints (catches 3DEP collections not yet converted to EPT).
+# Contiguous 48 states plus DC, hobuinc inventory plus official USGS 3DEP
+# work-unit footprints (includes collections not yet converted to EPT).
 states: CONUS
-
-min_year: 2015
-coverage_threshold: 5.0
-cache_dir: data/cache
 output_dir: outputs_with_3dep
 skip_existing: true
-vintage_overrides: data/reference/vintage_overrides_reviewed.csv
-refresh_inventory: true
 supplement_3dep_index: true

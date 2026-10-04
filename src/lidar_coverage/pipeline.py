@@ -14,6 +14,11 @@ import pandas as pd
 from lidar_coverage.analysis import compute_coverage
 from lidar_coverage.constants import (
     CENSUS_TIGER_YEAR,
+    DEFAULT_COVERAGE_THRESHOLD,
+    DEFAULT_MIN_YEAR,
+    REVIEWED_VINTAGE_OVERRIDES,
+    STATE_GROUPS,
+    STATE_TO_FIPS,
     USGS_LIDAR_METADATA_URL,
     USGS_WORKUNIT_QUERY_URL,
 )
@@ -61,9 +66,55 @@ class RunOptions:
     coverage_threshold: float
     vintage_overrides: Path | None = None
     refresh_cache: bool = False
-    refresh_inventory: bool = False
+    refresh_inventory: bool = True
     supplement_3dep_index: bool = False
     skip_existing: bool = False
+
+
+def normalize_states(states: list[str]) -> list[str]:
+    if not states:
+        raise ValueError("At least one state abbreviation is required.")
+    normalized: list[str] = []
+    for state in states:
+        state_abbr = str(state).upper()
+        expanded = STATE_GROUPS.get(state_abbr, (state_abbr,))
+        for code in expanded:
+            if code not in STATE_TO_FIPS:
+                raise ValueError(f"Unknown state abbreviation: {code}")
+            if code not in normalized:
+                normalized.append(code)
+    return normalized
+
+
+def run(
+    states: list[str] | str = "RI",
+    *,
+    output_dir: str | Path = "outputs",
+    cache_dir: str | Path = "data/cache",
+    min_year: int = DEFAULT_MIN_YEAR,
+    coverage_threshold: float = DEFAULT_COVERAGE_THRESHOLD,
+    vintage_overrides: str | Path | None = REVIEWED_VINTAGE_OVERRIDES,
+    supplement_3dep_index: bool = False,
+    offline: bool = False,
+    skip_existing: bool = False,
+) -> pd.DataFrame:
+    """Python entry point, e.g. ``run(["RI", "MA"])`` or ``run("CONUS")``.
+
+    Returns the batch summary (one row per state); files go to ``output_dir``.
+    """
+    return run_pipeline(
+        RunOptions(
+            states=normalize_states([states] if isinstance(states, str) else list(states)),
+            cache_dir=Path(cache_dir),
+            output_dir=Path(output_dir),
+            min_year=min_year,
+            coverage_threshold=coverage_threshold,
+            vintage_overrides=Path(vintage_overrides) if vintage_overrides else None,
+            refresh_inventory=not offline,
+            supplement_3dep_index=supplement_3dep_index,
+            skip_existing=skip_existing,
+        )
+    )
 
 
 def package_version() -> str:

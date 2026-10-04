@@ -1,6 +1,6 @@
 [project]
 name = "lidar-coverage"
-version = "0.2.0"
+version = "0.3.0"
 description = "Pipeline for identifying U.S. Census county subdivisions lacking modern LiDAR coverage."
 readme = "README.md"
 requires-python = ">=3.12"
@@ -15,8 +15,16 @@ dependencies = [
 ]
 keywords = ["lidar", "geospatial", "census", "usgs", "coverage"]
 
+[project.optional-dependencies]
+verify = ["laspy[lazrs]>=2.5.0"]
+
+[project.urls]
+Repository = "https://github.com/DOGZzl1xy/lidar-coverage-pipeline"
+Report = "https://dogzzl1xy.github.io/lidar-coverage-pipeline/"
+
 [project.scripts]
 lidar-coverage = "lidar_coverage.cli:main"
+lidar-coverage-validate = "lidar_coverage.validation:main"
 
 [build-system]
 requires = ["hatchling>=1.27.0"]
@@ -31,9 +39,6 @@ package = true
 [dependency-groups]
 dev = [
     "ruff>=0.11.0",
-]
-verify = [
-    "laspy[lazrs]>=2.5.0",
 ]
 
 [tool.ruff]

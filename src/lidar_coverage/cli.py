@@ -11,10 +11,9 @@ import yaml
 from lidar_coverage.constants import (
     DEFAULT_COVERAGE_THRESHOLD,
     DEFAULT_MIN_YEAR,
-    STATE_GROUPS,
-    STATE_TO_FIPS,
+    REVIEWED_VINTAGE_OVERRIDES,
 )
-from lidar_coverage.pipeline import RunOptions, run_pipeline, run_preflight
+from lidar_coverage.pipeline import RunOptions, normalize_states, run_pipeline, run_preflight
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -44,7 +43,12 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--vintage-overrides",
         type=Path,
-        help="CSV of authoritative collection_key,start_year values (see fetch_usgs_workunits).",
+        help="CSV of collection_key,start_year[,end_year] (default: bundled reviewed table).",
+    )
+    parser.add_argument(
+        "--no-vintage-overrides",
+        action="store_true",
+        help="Use only years parsed from collection names and URLs.",
     )
     parser.add_argument(
         "--refresh-cache",
@@ -53,10 +57,10 @@ def build_parser() -> argparse.ArgumentParser:
         help="Re-download source files even when cached copies exist.",
     )
     parser.add_argument(
-        "--refresh-inventory",
+        "--offline",
         action="store_true",
         default=None,
-        help="Re-download only the LiDAR inventory (keeps cached Census files).",
+        help="Use the cached LiDAR inventory instead of downloading the latest one.",
     )
     parser.add_argument(
         "--supplement-3dep-index",
@@ -86,21 +90,6 @@ def load_config(path: Path | None) -> dict[str, object]:
     if not isinstance(config, dict):
         raise ValueError("Configuration root must be a YAML mapping.")
     return config
-
-
-def normalize_states(states: list[str]) -> list[str]:
-    if not states:
-        raise ValueError("At least one state abbreviation is required.")
-    normalized: list[str] = []
-    for state in states:
-        state_abbr = str(state).upper()
-        expanded = STATE_GROUPS.get(state_abbr, (state_abbr,))
-        for code in expanded:
-            if code not in STATE_TO_FIPS:
-                raise ValueError(f"Unknown state abbreviation: {code}")
-            if code not in normalized:
-                normalized.append(code)
-    return normalized
 
 
 def _configured_states(config: dict[str, object]) -> list[str]:
@@ -138,7 +127,11 @@ def resolve_options(args: argparse.Namespace) -> RunOptions:
     if not 0.0 <= coverage_threshold <= 100.0:
         raise ValueError("Coverage threshold must be within 0-100.")
 
-    overrides = _pick(args.vintage_overrides, config, "vintage_overrides", None)
+    overrides = _pick(
+        args.vintage_overrides, config, "vintage_overrides", REVIEWED_VINTAGE_OVERRIDES
+    )
+    if args.no_vintage_overrides or overrides is False:
+        overrides = None
     if overrides is not None and not Path(overrides).exists():
         raise ValueError(f"Vintage override file not found: {overrides}")
 
@@ -150,7 +143,7 @@ def resolve_options(args: argparse.Namespace) -> RunOptions:
         coverage_threshold=coverage_threshold,
         vintage_overrides=Path(overrides) if overrides is not None else None,
         refresh_cache=bool(_pick(args.refresh_cache, config, "refresh_cache", False)),
-        refresh_inventory=bool(_pick(args.refresh_inventory, config, "refresh_inventory", False)),
+        refresh_inventory=not bool(_pick(args.offline, config, "offline", False)),
         supplement_3dep_index=bool(
             _pick(args.supplement_3dep_index, config, "supplement_3dep_index", False)
         ),
