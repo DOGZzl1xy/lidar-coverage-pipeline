@@ -92,9 +92,6 @@ footer { font-size: 12.5px; color: var(--muted); border-top: 1px solid var(--rul
     <header>
       <div class="kind">Memorandum</div>
       <dl class="head">
-        <dt>TO</dt><dd>Prof. Xiaojiang Li</dd>
-        <dt>FROM</dt><dd>Xuanyu Zhou</dd>
-        <dt>DATE</dt><dd>October 3, 2026</dd>
         <dt>RE</dt><dd class="re">396 county subdivisions in the contiguous U.S. lack modern LiDAR; which list to use</dd>
       </dl>
     </header>
@@ -115,7 +112,7 @@ footer { font-size: 12.5px; color: var(--muted); border-top: 1px solid var(--rul
     <section>
       <h2>Most of the 2,304 gaps are 3DEP data the inventory has not added yet</h2>
       <p>The hobuinc inventory lists only collections that have already been converted to Entwine Point Tiles. I checked several towns that it showed with 0% coverage against the official USGS 3DEP index. Concord, NC has <code>NC_Phase4_Cabarrus_2016</code>, New Ulm, MN has <code>MN_RiverEast_2_B23</code>, and Colonial Heights, VA has <code>VA_SouthamptonHenricoWMBG_2_2019</code>. None of these is in the inventory. Adding the official index removes 1,908 of the 2,304 gaps. Minnesota drops from 548 to 14, and Pennsylvania (123) and New Jersey (142) drop to zero.</p>
-      <p>Meredith township, NC is a gap in both sources: the only data covering it is from 2001.</p>
+      <p>Meredith township, NC remains a gap in both sources, because the only data covering it is from 2001.</p>
     </section>
 
     <section>
@@ -130,7 +127,7 @@ footer { font-size: 12.5px; color: var(--muted); border-top: 1px solid var(--rul
     </section>
 
     <section>
-      <h2>Vintages for 53 disputed collections were checked one by one</h2>
+      <h2>I checked the dates of 53 disputed collections one by one</h2>
       <p>Collection years come from their names unless a review found otherwise. I reviewed every collection whose name gave no year, and every one whose name and official USGS dates put it on different sides of 2015, against USGS, OpenTopography, NOAA and state records. For 36 of them I also sampled GPS times from the point clouds (5 to 65 MB each); where a collection had published flight dates, the samples matched them to the day. Each of the 53 decisions is stored with its evidence in the code.</p>
       <p>Two rules apply throughout. A collection whose flights span 2015 counts as modern. The "County subdivisions not defined" placeholders in the Census files, which are mostly water, are excluded.</p>
     </section>
