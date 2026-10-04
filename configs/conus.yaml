@@ -1,13 +1,5 @@
-# Contiguous 48 states plus DC. Long-running: --skip-existing resumes a
-# partially completed output directory.
+# Contiguous 48 states plus DC, hobuinc/usgs-lidar inventory.
+# Reviewed vintage overrides and the latest inventory are used by default.
 states: CONUS
-
-min_year: 2015
-coverage_threshold: 5.0
-cache_dir: data/cache
 output_dir: outputs
 skip_existing: true
-# Reviewed authoritative vintages (see Progress.md, P1 review 2026-10-03).
-vintage_overrides: data/reference/vintage_overrides_reviewed.csv
-# Always pull the latest hobuinc/usgs-lidar inventory (~9 MB); hashes go to run_manifest.json.
-refresh_inventory: true

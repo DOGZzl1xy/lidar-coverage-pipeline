@@ -2,6 +2,9 @@
 
 from __future__ import annotations
 
+from importlib.resources import files
+from pathlib import Path
+
 STATE_TO_FIPS = {
     "AL": "01",
     "AK": "02",
@@ -73,6 +76,10 @@ USGS_WORKUNIT_QUERY_URL = (
     "https://index.nationalmap.gov/arcgis/rest/services/3DEPElevationIndex/MapServer/8/query"
 )
 DEFAULT_MIN_YEAR = 2015
+# Reviewed authoritative vintages shipped with the package (see Progress.md).
+REVIEWED_VINTAGE_OVERRIDES = Path(
+    str(files("lidar_coverage") / "data" / "vintage_overrides_reviewed.csv")
+)
 DEFAULT_COVERAGE_THRESHOLD = 5.0
 
 # Newer state-run LiDAR programs that are not (fully) in the USGS inventory.

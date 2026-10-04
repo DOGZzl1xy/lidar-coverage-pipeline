@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import argparse
 import json
 from pathlib import Path
 
@@ -216,3 +217,23 @@ def validate_outputs(
             _check_batch_row(batch, state, full, gaps, batch_csv, errors)
 
     return errors
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(description="Validate a lidar-coverage output directory.")
+    parser.add_argument("output_dir", type=Path)
+    parser.add_argument(
+        "--states", nargs="+", help="States to check (default: all states in the run)."
+    )
+    parser.add_argument(
+        "--coverage-threshold",
+        type=float,
+        help="Expected run threshold (default: the value recorded in run_manifest.json).",
+    )
+    args = parser.parse_args()
+    errors = validate_outputs(
+        args.output_dir, states=args.states, coverage_threshold=args.coverage_threshold
+    )
+    if errors:
+        raise SystemExit("Output validation failed:\n- " + "\n- ".join(errors))
+    print(f"Validated outputs in {args.output_dir}.")

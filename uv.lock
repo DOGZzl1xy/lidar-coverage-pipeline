@@ -221,7 +221,7 @@ wheels = [
 
 [[package]]
 name = "lidar-coverage"
-version = "0.2.0"
+version = "0.3.0"
 source = { editable = "." }
 dependencies = [
     { name = "geopandas" },
@@ -233,17 +233,20 @@ dependencies = [
     { name = "shapely" },
 ]
 
+[package.optional-dependencies]
+verify = [
+    { name = "laspy", extra = ["lazrs"] },
+]
+
 [package.dev-dependencies]
 dev = [
     { name = "ruff" },
-]
-verify = [
-    { name = "laspy", extra = ["lazrs"] },
 ]
 
 [package.metadata]
 requires-dist = [
     { name = "geopandas", specifier = ">=1.0.1" },
+    { name = "laspy", extras = ["lazrs"], marker = "extra == 'verify'", specifier = ">=2.5.0" },
     { name = "pandas", specifier = ">=2.2.3" },
     { name = "pyogrio", specifier = ">=0.10.0" },
     { name = "pyproj", specifier = ">=3.7.0" },
@@ -251,10 +254,10 @@ requires-dist = [
     { name = "requests", specifier = ">=2.32.3" },
     { name = "shapely", specifier = ">=2.0.7" },
 ]
+provides-extras = ["verify"]
 
 [package.metadata.requires-dev]
 dev = [{ name = "ruff", specifier = ">=0.11.0" }]
-verify = [{ name = "laspy", extras = ["lazrs"], specifier = ">=2.5.0" }]
 
 [[package]]
 name = "numpy"

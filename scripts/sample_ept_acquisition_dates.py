@@ -11,9 +11,9 @@ date. GPS week time (0-604800 s) carries no date; such points are counted as
 ``week_time_or_ambiguous`` instead of being converted. Dates use the 1st/99th
 percentiles to ignore stray outliers.
 
-Requires the optional ``verify`` dependency group:
+Requires the optional ``verify`` extra:
 
-    uv run --group verify python scripts/sample_ept_acquisition_dates.py MN_FullState
+    uv run --extra verify python scripts/sample_ept_acquisition_dates.py MN_FullState
 """
 
 from __future__ import annotations
@@ -73,7 +73,7 @@ def sample_nodes(hierarchy: dict[str, int], max_depth: int, count: int, seed: in
 def sample_collection(
     name: str, *, max_depth: int = 4, nodes: int = 24, seed: int = 0
 ) -> dict[str, object]:
-    import laspy  # optional dependency (uv --group verify)
+    import laspy  # optional dependency (extra "verify")
 
     session = build_session()
     base = f"{EPT_ROOT}/{name}"

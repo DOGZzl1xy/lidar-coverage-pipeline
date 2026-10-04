@@ -79,7 +79,7 @@ def main() -> None:
     parser.add_argument(
         "--output",
         type=Path,
-        default=Path("data/reference/usgs_workunit_vintage.csv"),
+        default=Path("usgs_workunit_vintage.csv"),
     )
     args = parser.parse_args()
 
