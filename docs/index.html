@@ -3,183 +3,214 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="County subdivisions in CONUS + DC with under 5% modern (2015+) LiDAR coverage.">
-<title>CONUS LiDAR Gap Report</title>
+<meta name="description" content="Memo: county subdivisions in the contiguous U.S. with under 5% modern (2015+) LiDAR coverage, and which gap list to use.">
+<title>CONUS LiDAR Gap Memo</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
 <style>
-/* Layout: one reading column (~760px) of short report sections, numbers in mono, one horizontal bar chart. */
+/* Layout: a memo sheet, one ~720px column; header block, decision box, claim headings, appendix. */
 :root {
-  --bg: #f6f8f8;
-  --surface: #ffffff;
-  --fg: #17242a;
-  --muted: #5a6b72;
-  --rule: #d5dee1;
-  --accent: #1d6b73;      /* hobuinc + 3DEP series */
-  --accent-2: #b6c9cd;    /* hobuinc-only series */
-  --warn: #8a5a12;
+  --bg: #eef2f2; --paper: #ffffff; --fg: #18252b; --muted: #59696f; --rule: #d3dcdf;
+  --accent: #1d6b73; --accent-2: #b4c8cc; --ask-bg: #edf5f3; --ask-rule: #1d6b73; --warn: #8a5a12;
   --font-display: "Source Serif 4", Georgia, serif;
   --font-body: "Public Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
 }
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --bg: #111a1d; --surface: #172327; --fg: #e3ecee; --muted: #9aacb2; --rule: #2b3b40;
-    --accent: #5cb3bb; --accent-2: #3d555b; --warn: #e0b46a; color-scheme: dark;
-  }
+  :root:not([data-theme="light"]) { --bg: #0f181b; --paper: #162226; --fg: #e2ebed; --muted: #9aabb1; --rule: #2a3a3f;
+    --accent: #5cb3bb; --accent-2: #3c545a; --ask-bg: #1b2e30; --ask-rule: #5cb3bb; --warn: #e0b46a; color-scheme: dark; }
 }
-:root[data-theme="dark"] {
-  --bg: #111a1d; --surface: #172327; --fg: #e3ecee; --muted: #9aacb2; --rule: #2b3b40;
-  --accent: #5cb3bb; --accent-2: #3d555b; --warn: #e0b46a; color-scheme: dark;
-}
+:root[data-theme="dark"] { --bg: #0f181b; --paper: #162226; --fg: #e2ebed; --muted: #9aabb1; --rule: #2a3a3f;
+  --accent: #5cb3bb; --accent-2: #3c545a; --ask-bg: #1b2e30; --ask-rule: #5cb3bb; --warn: #e0b46a; color-scheme: dark; }
 *, *::before, *::after { box-sizing: border-box; }
-body { margin: 0; background: var(--bg); color: var(--fg); font: 15px/1.6 var(--font-body); }
-.wrap { max-width: 760px; margin: 0 auto; padding-inline: 20px; padding-block: 40px 64px; display: grid; gap: 40px; }
-header { display: grid; gap: 10px; }
-.eyebrow { font: 500 12px/1.4 var(--font-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
-h1 { font: 600 clamp(28px, 5vw, 38px)/1.15 var(--font-display); margin: 0; text-wrap: balance; }
-h2 { font: 600 20px/1.3 var(--font-display); margin: 0 0 12px; text-wrap: balance; }
-p { margin: 0; max-width: 65ch; }
-.lede { color: var(--muted); font-size: 16px; }
-section { display: grid; gap: 12px; }
+body { margin: 0; background: var(--bg); color: var(--fg); font: 15.5px/1.62 var(--font-body); }
+a { color: var(--accent); }
+a:focus-visible, summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.shell { max-width: 800px; margin: 0 auto; padding-inline: 16px; padding-block: 20px 56px; display: grid; gap: 14px; }
+nav.memos { display: flex; flex-wrap: wrap; gap: 8px; font-size: 13px; }
+nav.memos a { text-decoration: none; padding: 6px 12px; border: 1px solid var(--rule); border-radius: 999px; color: var(--muted); background: var(--paper); }
+nav.memos a[aria-current="page"] { color: var(--paper); background: var(--accent); border-color: var(--accent); }
+article { background: var(--paper); border: 1px solid var(--rule); border-radius: 4px; padding-inline: clamp(18px, 5vw, 48px); padding-block: 36px 40px; display: grid; gap: 28px; }
+.kind { font: 600 12px/1 var(--font-mono); letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
+dl.head { display: grid; grid-template-columns: max-content 1fr; gap: 4px 16px; margin: 12px 0 0; padding-bottom: 18px; border-bottom: 2px solid var(--fg); }
+dl.head dt { font: 600 12px/1.9 var(--font-mono); letter-spacing: .08em; color: var(--muted); }
+dl.head dd { margin: 0; min-width: 0; }
+dl.head dd.re { font: 600 18px/1.35 var(--font-display); text-wrap: balance; }
+p { margin: 0; max-width: 68ch; }
+.bluf { font-size: 16.5px; }
+.ask { background: var(--ask-bg); border-left: 4px solid var(--ask-rule); padding: 14px 18px; display: grid; gap: 6px; }
+.ask .label { font: 600 12px/1 var(--font-mono); letter-spacing: .1em; text-transform: uppercase; color: var(--accent); }
+section { display: grid; gap: 10px; }
+article > *, section > *, figure > * { min-width: 0; }
+h2 { font: 600 19px/1.32 var(--font-display); margin: 0; text-wrap: balance; }
+h3 { font: 600 15px/1.4 var(--font-body); margin: 6px 0 0; }
+ul, ol { margin: 0; padding-left: 22px; display: grid; gap: 6px; max-width: 68ch; }
 .num { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
-
-.figures { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1px; background: var(--rule); border: 1px solid var(--rule); border-radius: 6px; overflow: hidden; }
-.fig { background: var(--surface); padding: 16px; display: grid; gap: 4px; align-content: start; }
-.fig .v { font: 500 28px/1.1 var(--font-mono); font-variant-numeric: tabular-nums; }
-.fig .v.hl { color: var(--accent); }
-.fig .k { font-size: 13px; color: var(--muted); }
-@media (max-width: 560px) { .figures { grid-template-columns: 1fr; } }
-
-ul { margin: 0; padding-left: 20px; display: grid; gap: 6px; max-width: 65ch; }
-.legend { display: flex; flex-wrap: wrap; gap: 16px; font-size: 13px; color: var(--muted); }
+.figs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border: 1px solid var(--rule); border-radius: 4px; }
+.figs > div { padding: 12px 14px; display: grid; gap: 2px; align-content: start; }
+.figs > div + div { border-left: 1px solid var(--rule); }
+.figs .v { font: 500 26px/1.15 var(--font-mono); font-variant-numeric: tabular-nums; }
+.figs .v.hl { color: var(--accent); }
+.figs .k { font-size: 12.5px; color: var(--muted); line-height: 1.4; }
+@media (max-width: 560px) { .figs { grid-template-columns: 1fr; } .figs > div + div { border-left: 0; border-top: 1px solid var(--rule); } }
+figure { margin: 0; display: grid; gap: 8px; }
+figure img { width: 100%; height: auto; border: 1px solid var(--rule); border-radius: 3px; background: #fff; }
+figcaption { font-size: 13px; color: var(--muted); max-width: 68ch; }
+.legend { display: flex; flex-wrap: wrap; gap: 16px; font-size: 12.5px; color: var(--muted); }
 .legend span { display: inline-flex; align-items: center; gap: 6px; }
 .sw { width: 12px; height: 12px; border-radius: 2px; display: inline-block; }
 .chart { overflow-x: auto; }
-.chart svg { display: block; width: 100%; min-width: 520px; height: auto; }
+.chart svg { display: block; width: 100%; min-width: 500px; height: auto; }
 .chart text { fill: var(--fg); font: 12px var(--font-mono); }
 .chart .lab { fill: var(--muted); }
 .chart .grid { stroke: var(--rule); }
-.bar-a { fill: var(--accent-2); }
-.bar-b { fill: var(--accent); }
-
-.note { border-left: 3px solid var(--warn); padding: 4px 0 4px 14px; display: grid; gap: 6px; }
-.note strong { color: var(--warn); font-weight: 600; }
-
-details { border-top: 1px solid var(--rule); padding-top: 12px; }
-summary { cursor: pointer; font-weight: 600; }
-summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-.tbl { overflow-x: auto; margin-top: 12px; }
-table { border-collapse: collapse; width: 100%; font-size: 13px; min-width: 420px; }
+.bar-a { fill: var(--accent-2); } .bar-b { fill: var(--accent); }
+.tbl { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-size: 13px; }
 th, td { text-align: right; padding: 5px 10px; border-bottom: 1px solid var(--rule); font-variant-numeric: tabular-nums; }
 th:first-child, td:first-child { text-align: left; }
 th { font-weight: 600; color: var(--muted); font-size: 12px; }
 td { font-family: var(--font-mono); }
-code { font: 13px var(--font-mono); background: var(--surface); border: 1px solid var(--rule); border-radius: 4px; padding: 0 4px; overflow-wrap: anywhere; }
-a { color: var(--accent); }
-footer { color: var(--muted); font-size: 13px; border-top: 1px solid var(--rule); padding-top: 16px; }
+td.txt { font-family: var(--font-body); text-align: left; }
+code { font: 13px var(--font-mono); background: var(--bg); border: 1px solid var(--rule); border-radius: 3px; padding: 0 4px; overflow-wrap: anywhere; }
+pre { margin: 0; overflow-x: auto; background: var(--bg); border: 1px solid var(--rule); border-radius: 4px; padding: 10px 12px; font: 13px/1.5 var(--font-mono); }
+details { border-top: 1px solid var(--rule); padding-top: 12px; }
+summary { cursor: pointer; font-weight: 600; }
+details > :not(summary) { margin-top: 12px; }
+.next li strong { font-weight: 600; }
+footer { font-size: 12.5px; color: var(--muted); border-top: 1px solid var(--rule); padding-top: 14px; display: grid; gap: 4px; }
 </style>
-
 </head>
 <body>
-<div class="wrap">
-  <header>
-    <div class="eyebrow">RA status report · 3 Oct 2026</div>
-    <h1>Where the contiguous U.S. lacks modern LiDAR</h1>
-    <p class="lede">County subdivisions in the 48 contiguous states and DC where LiDAR collected in 2015 or later covers less than 5% of the area. The analysis uses collection footprints and metadata, not point clouds.</p>
-  </header>
+<div class="shell">
+  <nav class="memos" aria-label="Memos">
+    <a href="https://dogzzl1xy.github.io/lidar-coverage-pipeline/" aria-current="page">1 · LiDAR coverage gaps</a>
+    <a href="https://dogzzl1xy.github.io/TreeBuilding2Tiff/">2 · Height fusion tool</a>
+  </nav>
 
-  <section aria-label="Headline figures">
-    <div class="figures">
-      <div class="fig"><div class="v">35,309</div><div class="k">county subdivisions analyzed in 49 jurisdictions</div></div>
-      <div class="fig"><div class="v">2,304</div><div class="k">below 5% using the hobuinc/usgs-lidar inventory (the source in the brief)</div></div>
-      <div class="fig"><div class="v hl">396</div><div class="k">below 5% after adding official USGS 3DEP index footprints</div></div>
+  <article>
+    <header>
+      <div class="kind">Memorandum</div>
+      <dl class="head">
+        <dt>TO</dt><dd>Prof. Xiaojiang Li</dd>
+        <dt>FROM</dt><dd>Xuanyu Zhou</dd>
+        <dt>DATE</dt><dd>October 3, 2026</dd>
+        <dt>RE</dt><dd class="re">396 county subdivisions in the contiguous U.S. lack modern LiDAR; which list to use</dd>
+      </dl>
+    </header>
+
+    <p class="bluf">I measured how much of each of the 35,309 county subdivisions in the 48 contiguous states and DC is covered by LiDAR collected in 2015 or later. When every collection USGS has published is counted, <strong>396 have less than 5% coverage</strong>. The hobuinc inventory named in the original brief gives 2,304, but most of that difference is published 3DEP data the inventory has not added yet. I recommend treating the 396 list as primary and keeping the 2,304 list as a secondary view.</p>
+
+    <div class="ask">
+      <div class="label">Decision requested</div>
+      <p>Confirm which list to use as the primary gap list: the 396 (recommended) or the 2,304. The height fusion work in memo 2 will start from that list.</p>
     </div>
-  </section>
 
-  <section>
-    <h2>Why there are two numbers</h2>
-    <p>The hobuinc inventory lists only the 3DEP collections that have already been converted to Entwine Point Tiles. When I spot-checked towns with 0% coverage, several had modern data in the official USGS 3DEP index that the inventory does not list yet. Concord, NC has <code>NC_Phase4_Cabarrus_2016</code>, New Ulm, MN has <code>MN_RiverEast_2_B23</code>, and Colonial Heights, VA has <code>VA_SouthamptonHenricoWMBG_2_2019</code>. Meredith township, NC has only 2001 data in both sources, so it remains a gap.</p>
-    <p>The pipeline can now run with or without the official index. Which result to treat as primary is still an open question.</p>
-  </section>
-
-  <section>
-    <h2>Gap counts by state</h2>
-    <div class="legend">
-      <span><i class="sw bar-a" style="background:var(--accent-2)"></i>hobuinc inventory</span>
-      <span><i class="sw" style="background:var(--accent)"></i>hobuinc + 3DEP index</span>
+    <div class="figs" aria-label="Headline figures">
+      <div><div class="v">35,309</div><div class="k">county subdivisions analyzed in 49 jurisdictions</div></div>
+      <div><div class="v hl">396</div><div class="k">below 5% with all published USGS 3DEP collections</div></div>
+      <div><div class="v">2,304</div><div class="k">below 5% with the hobuinc/usgs-lidar inventory only</div></div>
     </div>
-    <div class="chart" id="chart" role="img" aria-label="Horizontal bar chart of county subdivisions below 5% coverage for the 18 states with the most gaps, under both footprint sources"></div>
-    <p class="lede" style="font-size:13px">The 18 states with the most gaps under either source. The full table is below.</p>
-  </section>
 
-  <section>
-    <h2>Method</h2>
-    <ul>
-      <li>Boundaries come from the Census TIGER/Line 2024 county subdivision files. Placeholder areas coded <span class="num">00000</span> ("County subdivisions not defined", mostly water) are excluded.</li>
-      <li>Footprints are unioned in EPSG:5070, so overlapping collections are not double counted. A gap is coverage below <span class="num">5%</span>.</li>
-      <li>A collection counts as modern when its latest acquisition year is 2015 or later, so collections that span 2015 count as modern.</li>
-      <li>Most vintages come from collection names. I reviewed 53 collections with conflicting or missing dates one by one, checking USGS, OpenTopography, NOAA and state records and, where needed, GPS times sampled from the point clouds (5 to 65 MB per collection). The evidence for each decision is saved with the code.</li>
-      <li>Each run downloads the latest inventory and records the input hashes and parameters, so any result can be traced back to its inputs.</li>
-    </ul>
-  </section>
+    <section>
+      <h2>Most of the 2,304 gaps are 3DEP data the inventory has not added yet</h2>
+      <p>The hobuinc inventory lists only collections that have already been converted to Entwine Point Tiles. I checked several towns that it showed with 0% coverage against the official USGS 3DEP index. Concord, NC has <code>NC_Phase4_Cabarrus_2016</code>, New Ulm, MN has <code>MN_RiverEast_2_B23</code>, and Colonial Heights, VA has <code>VA_SouthamptonHenricoWMBG_2_2019</code>. None of these is in the inventory. Adding the official index removes 1,908 of the 2,304 gaps. Minnesota drops from 548 to 14, and Pennsylvania (123) and New Jersey (142) drop to zero.</p>
+      <p>Meredith township, NC is a gap in both sources: the only data covering it is from 2001.</p>
+    </section>
 
-  <section>
-    <h2>Read with care</h2>
-    <div class="note">
-      <p>Minnesota's Gen2 LiDAR (2021 to 2024) and KyFromAbove Phases 2 and 3 (2024 to 2026) are not fully included in the USGS sources, so some MN and KY gaps may already be covered by state data. The MN and KY outputs say so.</p>
-      <p>The 3DEP supplement takes official dates at face value for everything outside the 53 reviewed collections. Its footprints are also generalized to about 50 m, which can shift coverage slightly for towns near a collection edge.</p>
-      <p>The hobuinc inventory is updated almost daily, so runs on different days can differ slightly.</p>
-    </div>
-  </section>
+    <section>
+      <h2>The remaining gaps are concentrated in five states</h2>
+      <p>North Carolina alone accounts for 157 of the 396 (40%). Together with Oregon (46), Mississippi (37), Virginia (28) and North Dakota (19), five states hold 72% of the list. Twenty-nine of the 49 jurisdictions have no gaps.</p>
+      <div class="legend">
+        <span><i class="sw" style="background:var(--accent)"></i>all published 3DEP collections</span>
+        <span><i class="sw" style="background:var(--accent-2)"></i>hobuinc inventory only</span>
+      </div>
+      <div class="chart" id="chart" role="img" aria-label="Gap counts for the 18 states with the most gaps under either source"></div>
+      <figcaption>Figure 1. County subdivisions below 5% modern coverage, the 18 states with the most gaps when all published 3DEP collections are counted. Sources: Census TIGER/Line 2024; hobuinc/usgs-lidar inventory and USGS 3DEP Elevation Index, retrieved October 3, 2026.</figcaption>
+    </section>
 
-  <section>
-    <h2>Height fusion tool</h2>
-    <p>The separate package that fuses Meta canopy height with Overture building heights now writes GeoTIFFs either locally or to S3, and can export layers for checking in QGIS. Its 14 offline tests pass, and a Hong Kong sample ran end to end (934 × 1008 grid, 438 buildings). Next, I plan to validate it on several of the gap towns above and on a few Global South cities.</p>
-  </section>
+    <section>
+      <h2>Vintages for 53 disputed collections were checked one by one</h2>
+      <p>Collection years come from their names unless a review found otherwise. I reviewed every collection whose name gave no year, and every one whose name and official USGS dates put it on different sides of 2015, against USGS, OpenTopography, NOAA and state records. For 36 of them I also sampled GPS times from the point clouds (5 to 65 MB each); where a collection had published flight dates, the samples matched them to the day. Each of the 53 decisions is stored with its evidence in the code.</p>
+      <p>Two rules apply throughout. A collection whose flights span 2015 counts as modern. The "County subdivisions not defined" placeholders in the Census files, which are mostly water, are excluded.</p>
+    </section>
 
-  <details>
-    <summary>All 49 jurisdictions</summary>
-    <div class="tbl">
-      <table>
-        <thead><tr><th scope="col">State</th><th scope="col">Analyzed</th><th scope="col">Gaps, hobuinc</th><th scope="col">Gaps, + 3DEP index</th></tr></thead>
-        <tbody id="rows"></tbody>
-      </table>
-    </div>
-  </details>
+    <section>
+      <h2>The hobuinc list still matters if the next step needs streamable point clouds</h2>
+      <p>The main argument for the 2,304 list is access. Collections in the hobuinc inventory can be streamed from usgs.entwine.io. The extra collections in the official index are only available as LAZ downloads from USGS. If later work depends on streaming point clouds, the 2,304 list shows where that is not possible today. If the question is only where modern LiDAR exists, the 396 list is the accurate one.</p>
+      <p>The 396 list has two limits. Outside the 53 reviewed collections it takes official dates at face value. Its footprints are also simplified to about 50 m, so towns near a collection edge may shift slightly.</p>
+    </section>
 
-  <footer>Code: <a href="https://github.com/DOGZzl1xy/lidar-coverage-pipeline">lidar-coverage-pipeline</a> v0.2.0 (configs <code>conus.yaml</code> and <code>conus_with_3dep.yaml</code>) and <code>TreeBuilding2Tiff</code> v0.2.0. All outputs passed the strict validator.</footer>
+    <section>
+      <h2>Two states may have fewer gaps than either list shows</h2>
+      <p>Minnesota's Gen2 LiDAR (2021 to 2024) and Kentucky's KyFromAbove Phases 2 and 3 (2024 to 2026) are state programs that neither source fully includes. The Minnesota and Kentucky output files carry a note to this effect. The hobuinc inventory also changes almost daily, so a rerun on another day can differ by a few towns.</p>
+    </section>
+
+    <section>
+      <h2>Next steps</h2>
+      <ol class="next">
+        <li><strong>You:</strong> confirm the primary gap list (396 or 2,304).</li>
+        <li><strong>Me, after your reply:</strong> publish the confirmed list as one national CSV and GeoJSON, and start the height fusion validation in memo 2 from it.</li>
+        <li><strong>Me, only if you want a cutoff other than 2015:</strong> re-check collection years for the new cutoff before rerunning.</li>
+      </ol>
+    </section>
+
+    <details>
+      <summary>Appendix: gap counts for all 49 jurisdictions</summary>
+      <div class="tbl">
+        <table>
+          <thead><tr><th scope="col">State</th><th scope="col">Analyzed</th><th scope="col">Gaps, all 3DEP</th><th scope="col">Gaps, hobuinc only</th></tr></thead>
+          <tbody id="rows"></tbody>
+        </table>
+      </div>
+    </details>
+
+    <details>
+      <summary>Appendix: method and reproduction</summary>
+      <ul>
+        <li>Units: Census TIGER/Line 2024 county subdivisions. Areas computed in EPSG:5070, with overlapping footprints merged so no area counts twice.</li>
+        <li>Gap: less than 5% of the area covered by LiDAR whose latest acquisition year is 2015 or later.</li>
+        <li>Inputs are footprints and metadata. The analysis itself downloads no point clouds.</li>
+        <li>Each run records its parameters and the SHA-256 of every input, and a validator checks all outputs.</li>
+      </ul>
+      <pre>uv tool install git+https://github.com/DOGZzl1xy/lidar-coverage-pipeline
+lidar-coverage --states CONUS --supplement-3dep-index --output-dir outputs_with_3dep
+lidar-coverage --states CONUS --output-dir outputs</pre>
+    </details>
+
+    <footer>
+      <span>Code: <a href="https://github.com/DOGZzl1xy/lidar-coverage-pipeline">github.com/DOGZzl1xy/lidar-coverage-pipeline</a> (v0.3.0)</span>
+      <span>Next memo: <a href="https://dogzzl1xy.github.io/TreeBuilding2Tiff/">Height fusion tool status and validation plan</a></span>
+    </footer>
+  </article>
 </div>
 
 <script>
 const ROWS = [["AL",390,0,0],["AZ",80,13,9],["AR",1095,23,0],["CA",404,8,0],["CO",209,13,0],["CT",169,0,0],["DE",27,0,0],["DC",1,0,0],["FL",316,28,6],["GA",586,1,0],["ID",170,4,0],["IL",1694,30,0],["IN",1010,0,0],["IA",1663,0,0],["KS",1525,23,1],["KY",493,0,0],["LA",576,40,0],["ME",529,111,1],["MD",290,61,6],["MA",351,3,1],["MI",1540,36,15],["MN",2756,548,14],["MS",410,48,37],["MO",1394,9,0],["MT",194,44,12],["NE",1182,87,0],["NV",71,4,1],["NH",259,0,0],["NJ",564,142,0],["NM",130,4,3],["NY",1014,67,8],["NC",1041,168,157],["ND",1761,143,19],["OH",1602,42,0],["OK",305,58,0],["OR",212,92,46],["PA",2572,123,0],["RI",39,0,0],["SC",299,13,0],["SD",1328,27,3],["TN",844,8,0],["TX",862,28,15],["UT",93,3,0],["VT",256,0,0],["VA",552,167,28],["WA",242,82,14],["WV",225,0,0],["WI",1913,3,0],["WY",71,0,0]];
 const fmt = n => n.toLocaleString("en-US");
-
-document.getElementById("rows").innerHTML = ROWS
-  .map(([s, n, a, b]) => `<tr><td>${s}</td><td>${fmt(n)}</td><td>${fmt(a)}</td><td>${fmt(b)}</td></tr>`)
-  .join("");
+document.getElementById("rows").innerHTML = [...ROWS]
+  .sort((x, y) => y[3] - x[3] || y[2] - x[2] || x[0].localeCompare(y[0]))
+  .map(([s, n, a, b]) => `<tr><td>${s}</td><td>${fmt(n)}</td><td>${fmt(b)}</td><td>${fmt(a)}</td></tr>`).join("");
 
 (function drawChart() {
-  const top = [...ROWS].sort((x, y) => Math.max(y[2], y[3]) - Math.max(x[2], x[3]) || y[2] - x[2]).slice(0, 18);
-  const W = 720, left = 44, right = 56, rowH = 26, barH = 9, topPad = 22;
-  const H = topPad + top.length * rowH + 8;
-  const max = 600, ticks = [0, 100, 200, 300, 400, 500, 600];
+  const top = [...ROWS].sort((x, y) => y[3] - x[3] || y[2] - x[2]).slice(0, 18);
+  const W = 700, left = 40, right = 50, rowH = 26, barH = 9, topPad = 22, max = 600;
+  const H = topPad + top.length * rowH + 6;
   const x = v => left + (v / max) * (W - left - right);
   let svg = `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">`;
-  for (const t of ticks) {
-    svg += `<line class="grid" x1="${x(t)}" x2="${x(t)}" y1="${topPad - 6}" y2="${H - 4}" stroke-width="1"/>`;
+  for (const t of [0, 100, 200, 300, 400, 500, 600]) {
+    svg += `<line class="grid" x1="${x(t)}" x2="${x(t)}" y1="${topPad - 6}" y2="${H - 2}" stroke-width="1"/>`;
     svg += `<text class="lab" x="${x(t)}" y="12" text-anchor="middle">${t}</text>`;
   }
   top.forEach(([s, , a, b], i) => {
     const y = topPad + i * rowH;
     svg += `<text x="0" y="${y + barH + 4}">${s}</text>`;
-    svg += `<rect class="bar-a" x="${left}" y="${y}" width="${Math.max(x(a) - left, a ? 1.5 : 0)}" height="${barH}" rx="1.5"/>`;
-    svg += `<rect class="bar-b" x="${left}" y="${y + barH + 1}" width="${Math.max(x(b) - left, b ? 1.5 : 0)}" height="${barH}" rx="1.5"/>`;
-    svg += `<text class="lab" x="${x(a) + 5}" y="${y + barH - 1}">${a}</text>`;
-    svg += `<text x="${x(b) + 5}" y="${y + 2 * barH + 0}">${b}</text>`;
+    svg += `<rect class="bar-b" x="${left}" y="${y}" width="${b ? Math.max(x(b) - left, 1.5) : 0}" height="${barH}" rx="1.5"/>`;
+    svg += `<rect class="bar-a" x="${left}" y="${y + barH + 1}" width="${a ? Math.max(x(a) - left, 1.5) : 0}" height="${barH}" rx="1.5"/>`;
+    svg += `<text x="${x(b) + 5}" y="${y + barH - 1}">${b}</text>`;
+    svg += `<text class="lab" x="${x(a) + 5}" y="${y + 2 * barH}">${a}</text>`;
   });
-  svg += `</svg>`;
-  document.getElementById("chart").innerHTML = svg;
+  document.getElementById("chart").innerHTML = svg + `</svg>`;
 })();
 </script>
 </body>
