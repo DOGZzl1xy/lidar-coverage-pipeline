@@ -3,8 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="Memo: county subdivisions in the contiguous U.S. with under 5% modern (2015+) LiDAR coverage, and which gap list to use.">
+<meta name="description" content="Memo: county subdivisions in the contiguous U.S. with under 5% modern (2015+) LiDAR coverage, collection dates checked against point clouds, and which gap list to use.">
 <title>CONUS LiDAR Gap Memo</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
 <style>
@@ -78,6 +79,14 @@ details { border-top: 1px solid var(--rule); padding-top: 12px; }
 summary { cursor: pointer; font-weight: 600; }
 details > :not(summary) { margin-top: 12px; }
 .next li strong { font-weight: 600; }
+#vmap { height: 440px; border: 1px solid var(--rule); border-radius: 3px; background: var(--bg); }
+@media (max-width: 560px) { #vmap { height: 360px; } }
+.ramp { display: inline-block; width: 90px; height: 10px; border-radius: 2px; background: linear-gradient(90deg, #440154, #3b528b, #21918c, #5ec962, #fde725); }
+.vtip { font: 12.5px/1.45 var(--font-body); min-width: 210px; max-width: 280px; white-space: normal; }
+.vtip b { display: block; font-size: 13px; word-break: break-all; }
+.vtip .m { color: #59696f; }
+.vtip .flag { color: #b42318; font-weight: 600; }
+.leaflet-container { font: inherit; }
 footer { font-size: 12.5px; color: var(--muted); border-top: 1px solid var(--rule); padding-top: 14px; display: grid; gap: 4px; }
 </style>
 </head>
@@ -92,50 +101,65 @@ footer { font-size: 12.5px; color: var(--muted); border-top: 1px solid var(--rul
     <header>
       <div class="kind">Memorandum</div>
       <dl class="head">
-        <dt>RE</dt><dd class="re">396 county subdivisions in the contiguous U.S. lack modern LiDAR; which list to use</dd>
+        <dt>RE</dt><dd class="re">420 county subdivisions in the contiguous U.S. lack modern LiDAR; which list to use</dd>
       </dl>
     </header>
 
-    <p class="bluf">I measured how much of each of the 35,309 county subdivisions in the 48 contiguous states and DC is covered by LiDAR collected in 2015 or later. When every collection USGS has published is counted, <strong>396 have less than 5% coverage</strong>. The hobuinc inventory named in the original brief gives 2,304, but most of that difference is published 3DEP data the inventory has not added yet. I recommend treating the 396 list as primary and keeping the 2,304 list as a secondary view.</p>
+    <p class="bluf">I measured how much of each of the 35,309 county subdivisions in the 48 contiguous states and DC is covered by LiDAR collected in 2015 or later. When every collection USGS has published is counted, <strong>420 have less than 5% coverage</strong>. The hobuinc inventory named in the original brief gives 2,306, but most of that difference is published 3DEP data the inventory has not added yet. I recommend treating the 420 list as primary and keeping the 2,306 list as a secondary view.</p>
+    <p>The first version of this memo gave 396. Since then I checked the acquisition date of every collection against the GPS times in its point cloud. Corrected dates add 22 gaps, almost all in Allegan and Van Buren counties, Michigan; a newer inventory adds 2.</p>
 
     <div class="ask">
       <div class="label">Decision requested</div>
-      <p>Confirm which list to use as the primary gap list: the 396 (recommended) or the 2,304. The height fusion work in memo 2 will start from that list.</p>
+      <p>Confirm which list to use as the primary gap list: the 420 (recommended) or the 2,306. The height fusion work in memo 2 will start from that list.</p>
     </div>
 
     <div class="figs" aria-label="Headline figures">
       <div><div class="v">35,309</div><div class="k">county subdivisions analyzed in 49 jurisdictions</div></div>
-      <div><div class="v hl">396</div><div class="k">below 5% with all published USGS 3DEP collections</div></div>
-      <div><div class="v">2,304</div><div class="k">below 5% with the hobuinc/usgs-lidar inventory only</div></div>
+      <div><div class="v hl">420</div><div class="k">below 5% with all published USGS 3DEP collections</div></div>
+      <div><div class="v">2,306</div><div class="k">below 5% with the hobuinc/usgs-lidar inventory only</div></div>
     </div>
 
     <section>
-      <h2>Most of the 2,304 gaps are 3DEP data the inventory has not added yet</h2>
-      <p>The hobuinc inventory lists only collections that have already been converted to Entwine Point Tiles. I checked several towns that it showed with 0% coverage against the official USGS 3DEP index. Concord, NC has <code>NC_Phase4_Cabarrus_2016</code>, New Ulm, MN has <code>MN_RiverEast_2_B23</code>, and Colonial Heights, VA has <code>VA_SouthamptonHenricoWMBG_2_2019</code>. None of these is in the inventory. Adding the official index removes 1,908 of the 2,304 gaps. Minnesota drops from 548 to 14, and Pennsylvania (123) and New Jersey (142) drop to zero.</p>
+      <h2>Most of the 2,306 gaps are 3DEP data the inventory has not added yet</h2>
+      <p>The hobuinc inventory lists only collections that have already been converted to Entwine Point Tiles. I checked several towns that it showed with 0% coverage against the official USGS 3DEP index. Concord, NC has <code>NC_Phase4_Cabarrus_2016</code>, New Ulm, MN has <code>MN_RiverEast_2_B23</code>, and Colonial Heights, VA has <code>VA_SouthamptonHenricoWMBG_2_2019</code>. None of these is in the inventory. Adding the official index removes 1,886 of the 2,306 gaps. Minnesota drops from 549 to 14, and Pennsylvania (123) and New Jersey (142) drop to zero.</p>
       <p>Meredith township, NC remains a gap in both sources, because the only data covering it is from 2001.</p>
     </section>
 
     <section>
       <h2>The remaining gaps are concentrated in five states</h2>
-      <p>North Carolina alone accounts for 157 of the 396 (40%). Together with Oregon (46), Mississippi (37), Virginia (28) and North Dakota (19), five states hold 72% of the list. Twenty-nine of the 49 jurisdictions have no gaps.</p>
+      <p>North Carolina alone accounts for 157 of the 420 (37%). Together with Oregon (45), Michigan (37), Mississippi (37) and Virginia (29), five states hold 73% of the list. Twenty-nine of the 49 jurisdictions have no gaps.</p>
       <div class="legend">
         <span><i class="sw" style="background:var(--accent)"></i>all published 3DEP collections</span>
         <span><i class="sw" style="background:var(--accent-2)"></i>hobuinc inventory only</span>
       </div>
       <div class="chart" id="chart" role="img" aria-label="Gap counts for the 18 states with the most gaps under either source"></div>
-      <figcaption>Figure 1. County subdivisions below 5% modern coverage, the 18 states with the most gaps when all published 3DEP collections are counted. Sources: Census TIGER/Line 2024; hobuinc/usgs-lidar inventory and USGS 3DEP Elevation Index, retrieved October 3, 2026.</figcaption>
+      <figcaption>Figure 1. County subdivisions below 5% modern coverage, the 18 states with the most gaps when all published 3DEP collections are counted. Sources: Census TIGER/Line 2024; hobuinc/usgs-lidar inventory and USGS 3DEP Elevation Index, retrieved October 6, 2026.</figcaption>
     </section>
 
     <section>
-      <h2>I checked the dates of 53 disputed collections one by one</h2>
-      <p>Collection years come from their names unless a review found otherwise. I reviewed every collection whose name gave no year, and every one whose name and official USGS dates put it on different sides of 2015, against USGS, OpenTopography, NOAA and state records. For 36 of them I also sampled GPS times from the point clouds (5 to 65 MB each); where a collection had published flight dates, the samples matched them to the day. Each of the 53 decisions is stored with its evidence in the code.</p>
-      <p>Two rules apply throughout. A collection whose flights span 2015 counts as modern. The "County subdivisions not defined" placeholders in the Census files, which are mostly water, are excluded.</p>
+      <h2>I checked every collection's date against its point cloud</h2>
+      <p>I read GPS times from a sample of points in all 2,866 collections: 2,274 in the hobuinc inventory and 592 found only in the official index. 2,286 yielded dates. Of those that also have official dates, 98.4% fall in the same years. The 37 that do not mostly point to errors in the official index: 9 list a single day that looks like a publication date, 9 have the right month and day but the wrong year, and 8 Illinois District 7 counties share one range that is 1 to 2 years late. The other 578, mostly flown 2006 to 2012, store no usable timestamps.</p>
+      <p>For only 10 collections did the samples put the date on the other side of 2015 from the year the analysis used. I reviewed each and changed 8; the other 2 had too few 2015 points or too few tiles to overrule the official dates. All 10 now carry reviewed dates in the code (62 decisions in total, each with its evidence). Two of the changes affect the 420 list:</p>
+      <ul>
+        <li><code>MI_25County_AlleganCo_2015</code> was flown on December 7, 2014, not in 2015. This adds 27 gaps in Allegan and Van Buren counties.</li>
+        <li><code>MI_LeelanauCo_2015</code> was flown in April 2015, not December 2014 as an earlier review found. This removes 5 gaps.</li>
+      </ul>
+      <p>The others, in northern New York and the Missouri bootheel, change only the hobuinc list. Of the 48 earlier decisions the samples could test, all but the Leelanau one held.</p>
+      <div class="legend">
+        <span><i class="ramp"></i>&nbsp;measured median year, 2000 to 2025</span>
+        <span><i class="sw" style="background:#8a929a"></i>no usable timestamps</span>
+        <span><i class="sw" style="border:2px dashed #b42318"></i>year differs from official</span>
+        <span><i class="sw" style="border:2.5px solid var(--fg)"></i>date corrected in this update</span>
+      </div>
+      <div id="vmap" role="img" aria-label="Map of LiDAR collections colored by measured acquisition year"></div>
+      <figcaption>Figure 2. LiDAR collections colored by the median acquisition date measured from their points. Hover or tap a footprint for its measured and official dates. Footprints are simplified to about 2 km. Source: GPS-time samples taken October 6, 2026.</figcaption>
+      <p>Two rules apply throughout. A collection counts as modern if at least 5% of its sampled points, or its reviewed flight dates, fall in 2015 or later. The "County subdivisions not defined" placeholders in the Census files, which are mostly water, are excluded.</p>
     </section>
 
     <section>
       <h2>The hobuinc list still matters if the next step needs streamable point clouds</h2>
-      <p>The main argument for the 2,304 list is access. Collections in the hobuinc inventory can be streamed from usgs.entwine.io. The extra collections in the official index are only available as LAZ downloads from USGS. If later work depends on streaming point clouds, the 2,304 list shows where that is not possible today. If the question is only where modern LiDAR exists, the 396 list is the accurate one.</p>
-      <p>The 396 list has two limits. Outside the 53 reviewed collections it takes official dates at face value. Its footprints are also simplified to about 50 m, so towns near a collection edge may shift slightly.</p>
+      <p>The main argument for the 2,306 list is access. Collections in the hobuinc inventory can be streamed from usgs.entwine.io. The extra collections in the official index are only available as LAZ downloads from USGS. If later work depends on streaming point clouds, the 2,306 list shows where that is not possible today. If the question is only where modern LiDAR exists, the 420 list is the accurate one.</p>
+      <p>The 420 list has two limits. For the 578 collections without usable timestamps it takes official dates at face value, and the 592 official-index collections were sampled at only 4 tiles each. Its footprints are also simplified to about 50 m, so towns near a collection edge may shift slightly.</p>
     </section>
 
     <section>
@@ -146,7 +170,7 @@ footer { font-size: 12.5px; color: var(--muted); border-top: 1px solid var(--rul
     <section>
       <h2>Next steps</h2>
       <ol class="next">
-        <li><strong>You:</strong> confirm the primary gap list (396 or 2,304).</li>
+        <li><strong>You:</strong> confirm the primary gap list (420 or 2,306).</li>
         <li><strong>Me, after your reply:</strong> publish the confirmed list as one national CSV and GeoJSON, and start the height fusion validation in memo 2 from it.</li>
         <li><strong>Me, only if you want a cutoff other than 2015:</strong> re-check collection years for the new cutoff before rerunning.</li>
       </ol>
@@ -167,7 +191,8 @@ footer { font-size: 12.5px; color: var(--muted); border-top: 1px solid var(--rul
       <ul>
         <li>Units: Census TIGER/Line 2024 county subdivisions. Areas computed in EPSG:5070, with overlapping footprints merged so no area counts twice.</li>
         <li>Gap: less than 5% of the area covered by LiDAR whose latest acquisition year is 2015 or later.</li>
-        <li>Inputs are footprints and metadata. The analysis itself downloads no point clouds.</li>
+        <li>Collection year: the reviewed date where one exists, otherwise the official index or the year in the collection name.</li>
+        <li>Inputs are footprints and metadata. The analysis itself downloads no point clouds; the date check read about 1 MB per inventory node and the first 100,000 points of each sampled LAZ tile.</li>
         <li>Each run records its parameters and the SHA-256 of every input, and a validator checks all outputs.</li>
       </ul>
       <pre>uv tool install git+https://github.com/DOGZzl1xy/lidar-coverage-pipeline
@@ -183,7 +208,7 @@ lidar-coverage --states CONUS --output-dir outputs</pre>
 </div>
 
 <script>
-const ROWS = [["AL",390,0,0],["AZ",80,13,9],["AR",1095,23,0],["CA",404,8,0],["CO",209,13,0],["CT",169,0,0],["DE",27,0,0],["DC",1,0,0],["FL",316,28,6],["GA",586,1,0],["ID",170,4,0],["IL",1694,30,0],["IN",1010,0,0],["IA",1663,0,0],["KS",1525,23,1],["KY",493,0,0],["LA",576,40,0],["ME",529,111,1],["MD",290,61,6],["MA",351,3,1],["MI",1540,36,15],["MN",2756,548,14],["MS",410,48,37],["MO",1394,9,0],["MT",194,44,12],["NE",1182,87,0],["NV",71,4,1],["NH",259,0,0],["NJ",564,142,0],["NM",130,4,3],["NY",1014,67,8],["NC",1041,168,157],["ND",1761,143,19],["OH",1602,42,0],["OK",305,58,0],["OR",212,92,46],["PA",2572,123,0],["RI",39,0,0],["SC",299,13,0],["SD",1328,27,3],["TN",844,8,0],["TX",862,28,15],["UT",93,3,0],["VT",256,0,0],["VA",552,167,28],["WA",242,82,14],["WV",225,0,0],["WI",1913,3,0],["WY",71,0,0]];
+const ROWS = [["AL",390,0,0],["AR",1095,23,0],["AZ",80,13,9],["CA",404,8,0],["CO",209,13,0],["CT",169,0,0],["DC",1,0,0],["DE",27,0,0],["FL",316,28,6],["GA",586,1,0],["IA",1663,0,0],["ID",170,4,0],["IL",1694,29,0],["IN",1010,0,0],["KS",1525,23,1],["KY",493,0,0],["LA",576,40,0],["MA",351,3,1],["MD",290,61,6],["ME",529,111,1],["MI",1540,58,37],["MN",2756,549,14],["MO",1394,6,0],["MS",410,48,37],["MT",194,44,12],["NC",1041,168,157],["ND",1761,144,20],["NE",1182,83,0],["NH",259,0,0],["NJ",564,142,0],["NM",130,5,4],["NV",71,4,1],["NY",1014,46,8],["OH",1602,42,0],["OK",305,58,0],["OR",212,91,45],["PA",2572,123,0],["RI",39,0,0],["SC",299,13,0],["SD",1328,31,3],["TN",844,8,0],["TX",862,30,15],["UT",93,3,0],["VA",552,168,29],["VT",256,0,0],["WA",242,82,14],["WI",1913,3,0],["WV",225,0,0],["WY",71,0,0]];
 const fmt = n => n.toLocaleString("en-US");
 document.getElementById("rows").innerHTML = [...ROWS]
   .sort((x, y) => y[3] - x[3] || y[2] - x[2] || x[0].localeCompare(y[0]))
@@ -208,6 +233,61 @@ document.getElementById("rows").innerHTML = [...ROWS]
     svg += `<text class="lab" x="${x(a) + 5}" y="${y + 2 * barH}">${a}</text>`;
   });
   document.getElementById("chart").innerHTML = svg + `</svg>`;
+})();
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
+<script>
+(function drawMap() {
+  if (!window.L) return;
+  const STOPS = ["#440154", "#3b528b", "#21918c", "#5ec962", "#fde725"];
+  const rgb = h => [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16));
+  const yearColor = y => {
+    const t = Math.min(1, Math.max(0, (y - 2000) / 25)) * (STOPS.length - 1);
+    const i = Math.min(STOPS.length - 2, Math.floor(t)), f = t - i, a = rgb(STOPS[i]), b = rgb(STOPS[i + 1]);
+    return `rgb(${a.map((v, k) => Math.round(v + (b[k] - v) * f)).join(",")})`;
+  };
+  const decYear = d => { const [y, m] = d.split("-").map(Number); return y + (m - 0.5) / 12; };
+  const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  const dark = matchMedia("(prefers-color-scheme: dark)").matches && document.documentElement.dataset.theme !== "light"
+    || document.documentElement.dataset.theme === "dark";
+  const fg = getComputedStyle(document.documentElement).getPropertyValue("--fg").trim();
+
+  const map = L.map("vmap", { preferCanvas: true, scrollWheelZoom: false }).setView([39, -96], 4);
+  const base = dark ? "World_Dark_Gray_Base" : "World_Light_Gray_Base";
+  L.tileLayer(`https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/${base}/MapServer/tile/{z}/{y}/{x}`, {
+    attribution: "Tiles &copy; Esri", maxZoom: 13,
+  }).addTo(map);
+  map.on("focus", () => map.scrollWheelZoom.enable());
+  map.on("blur", () => map.scrollWheelZoom.disable());
+
+  const style = ({ properties: p }) => {
+    const s = { weight: 0.5, color: dark ? "#2a3a3f" : "#ffffff", fillOpacity: 0.7, dashArray: null };
+    s.fillColor = p.st === "ok" ? yearColor(decYear(p.med)) : "#8a929a";
+    if (p.a === "differ") Object.assign(s, { color: "#b42318", weight: 1.8, dashArray: "4 3" });
+    if (p.fix) Object.assign(s, { color: fg, weight: 2.5, dashArray: null });
+    return s;
+  };
+  const STATUS = { undated: "no usable timestamps", no_gps_time: "no GPS time field", no_tiles: "no tiles found", error: "could not be read" };
+  const tip = p => {
+    const official = p.os ? `${p.os} to ${p.oe}` : "none";
+    const measured = p.st === "ok" ? `${p.p01} to ${p.p99}` : STATUS[p.st] || "not sampled";
+    const verdict = p.a === "agree" ? "matches official year" : p.a === "differ" ? "<span class='flag'>differs from official year</span>" : "";
+    return `<div class="vtip"><b>${esc(p.n)}</b><span class="m">${p.s === "hobu" ? "hobuinc inventory" : "official 3DEP index only"}</span><br>
+      Measured: ${esc(measured)}<br>Official: ${esc(official)}${verdict ? "<br>" + verdict : ""}${p.fix ? "<br><span class='flag'>Date corrected in this update</span>" : ""}</div>`;
+  };
+  fetch("vintage_map.json").then(r => r.json()).then(geo => {
+    L.geoJSON(geo, {
+      style,
+      onEachFeature: (f, layer) => {
+        layer.bindTooltip(() => tip(f.properties), { sticky: true, direction: "top", opacity: 0.97 });
+        layer.on("mouseover", () => layer.setStyle({ weight: 2.5, color: fg }));
+        layer.on("mouseout", () => layer.setStyle(style(f)));
+      },
+    }).addTo(map);
+  }).catch(() => {
+    document.getElementById("vmap").insertAdjacentHTML("beforeend",
+      "<p style='padding:16px'>The map data could not be loaded. Reload the page to try again.</p>");
+  });
 })();
 </script>
 </body>

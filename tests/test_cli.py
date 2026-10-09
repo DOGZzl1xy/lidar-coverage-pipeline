@@ -18,7 +18,7 @@ class DefaultsTest(unittest.TestCase):
     def test_reviewed_overrides_ship_with_package(self) -> None:
         self.assertTrue(REVIEWED_VINTAGE_OVERRIDES.exists())
         overrides = load_vintage_overrides(REVIEWED_VINTAGE_OVERRIDES)
-        self.assertEqual(len(overrides), 53)
+        self.assertEqual(len(overrides), 62)
         self.assertEqual(overrides["ky_fullstate"], 2017)
 
     def test_cli_defaults_use_reviewed_overrides_and_latest_inventory(self) -> None:

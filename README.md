@@ -8,7 +8,7 @@
 
 这个工具用来找出美国人口普查 county subdivision（镇、乡等）中缺少现代 LiDAR 的区域。它计算每个区域有多大比例的面积被 2015 年及以后采集的 LiDAR 覆盖，比例低于阈值（默认 5%）就记为缺口。可以按单个州、多个州或全美本土（48 州加 DC，`CONUS`）运行。分析只使用覆盖范围和元数据，不下载点云。
 
-2026-10-03 的全美结果见[报告页面](https://dogzzl1xy.github.io/lidar-coverage-pipeline/)：35,309 个区域中，只用 hobuinc 清单时有 2,304 个低于 5%，加上 USGS 官方 3DEP 索引后为 396 个。
+2026-10-06 的全美结果见[报告页面](https://dogzzl1xy.github.io/lidar-coverage-pipeline/)：35,309 个区域中，只用 hobuinc 清单时有 2,306 个低于 5%，加上 USGS 官方 3DEP 索引后为 420 个。所有批次的采集日期都已用点云 GPS 时间核实。
 
 ### 安装
 
@@ -49,7 +49,7 @@ summary = run(["RI", "MA"], output_dir="outputs_ne")  # 返回每州一行的汇
 默认情况下：
 
 - 每次运行下载最新的 hobuinc LiDAR 清单（约 9 MB）；`--offline` 使用本地缓存。人口普查边界下载一次后缓存在 `data/cache/`。
-- 使用包内自带的年份核实表（53 个批次，每条附证据）；`--no-vintage-overrides` 只用批次名称里的年份。
+- 使用包内自带的年份核实表（62 个批次，每条附证据）；`--no-vintage-overrides` 只用批次名称里的年份。
 - 批次的年份取最后一次采集的年份，跨越 2015 年的批次算作现代数据。
 
 ### 常用参数
@@ -109,7 +109,7 @@ uv run python -m unittest discover -s tests
 
 Finds U.S. Census county subdivisions (towns, townships and similar units) that lack modern LiDAR. For each one it computes the share of the area covered by LiDAR collected in 2015 or later and reports a gap when that share is below a threshold (5% by default). It runs for one state, a list of states, or the contiguous 48 states plus DC (`CONUS`). The analysis uses footprints and metadata only and never downloads point clouds.
 
-The 2026-10-03 national results are in the [report](https://dogzzl1xy.github.io/lidar-coverage-pipeline/): of 35,309 county subdivisions, 2,304 fall below 5% with the hobuinc inventory alone and 396 after adding the official USGS 3DEP index.
+The 2026-10-06 national results are in the [report](https://dogzzl1xy.github.io/lidar-coverage-pipeline/): of 35,309 county subdivisions, 2,306 fall below 5% with the hobuinc inventory alone and 420 after adding the official USGS 3DEP index. Every collection's acquisition date was checked against GPS times in its point cloud.
 
 ### Install
 
@@ -150,7 +150,7 @@ summary = run(["RI", "MA"], output_dir="outputs_ne")  # one summary row per stat
 By default:
 
 - Each run downloads the latest hobuinc LiDAR inventory (about 9 MB); `--offline` uses the cached copy. Census boundaries are downloaded once and cached in `data/cache/`.
-- The reviewed vintage table bundled with the package (53 collections, each with evidence) is applied; `--no-vintage-overrides` uses only years parsed from collection names.
+- The reviewed vintage table bundled with the package (62 collections, each with evidence) is applied; `--no-vintage-overrides` uses only years parsed from collection names.
 - A collection's vintage is its latest acquisition year, so collections that span 2015 count as modern.
 
 ### Options
