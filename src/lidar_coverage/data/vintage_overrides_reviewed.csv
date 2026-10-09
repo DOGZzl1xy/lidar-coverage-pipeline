@@ -25,7 +25,7 @@ il_perryco_2015,2014,2014,B16,OpenTopography/USGS 2014-04-02..2014-04-30
 ks_scentral_l4_2015,2014,2015,B17,OpenTopography/USGS 2014-11-29..2015-03-15; mixed across threshold
 md_garret_co_2014,2015,2015,B18,OpenTopography/NOAA 2015-04-12..2015-05-04
 mi_13co_vanburrenco_2015,2014,2014,B19,NOAA 2014-12-07..2014-12-23
-mi_leelanauco_2015,2014,2014,B20,OpenTopography/USGS 2014-12-06..2014-12-23
+mi_leelanauco_2015,2015,2015,D1,"Full EPT sample 2026-10-06: 2015-04-18..2015-05-01 (p01-p99), 100% of 1.49M points 2015; supersedes B20 (OpenTopography/USGS 2014-12-06..2014-12-23)"
 mi_manisteeco_2015,2015,2015,B21,EPT sample 2015-04-24..2015-04-30; official 2014 rejected
 mn_phase_jacksonco_2011,2010,2010,B22,MN state record: Southwest collection spring/fall 2010; EPT GPS week time (consistent with pre-2011)
 mo_ar_mercer_grundy_2014,2015,2015,B23,OpenTopography/USGS 2015-01-23..2015-01-26
@@ -52,3 +52,12 @@ vt_rutland_lot7_2014,2014,2014,C17,"EPT sample 2014-05-07..2014-11-06 (p01-p99),
 vt_rutland_lot8_2013,2013,2015,C18,"EPT sample 2013-11-20..2015-05-14 (p01-p99), 16.0% of points 2015+; official 2013-2015"
 wa_elwhariver_2014,2014,2015,C19,"EPT sample 2014-11-07..2015-02-23 (p01-p99), 40.8% of points 2015+; official 2014-2015"
 wa_glacierpeak_2014,2014,2015,C20,"EPT sample 2014-08-25..2015-06-22 (p01-p99), 25.5% of points 2015+; official 2014-2015"
+ny_cl_ess_lchamp_p2_2014,2014,2015,D2,"Full EPT sample 2026-10-06: 2014-11-02..2015-05-08 (p01-p99), 77.7% of points 2015; name year 2014"
+mi_25county_alleganco_2015,2014,2014,D3,"Full EPT sample 2026-10-06: all dated points 2014-12-07; 3DEP tiles agree; official 2014-12-10..2015-12-23 and name year 2015 not supported by points"
+mi_alleganco_2015,2014,2014,D4,"3DEP LAZ sample 2026-10-06 (4 tiles): all points 2014-12-07; same collection as D3"
+mo_ar_game_fish_wma_2014,2014,2016,D5,"Full EPT sample 2026-10-06: 2014-02-25..2016-08-07 (p01-p99), 27.1% of points 2016; official 2014"
+mo_ar_capegirardeau_stoddard_2013,2013,2015,D6,"Full EPT sample 2026-10-06: 2013-12-26..2015-03-21 (p01-p99), 11.5% of points 2015; official 2013-2014; consistent with C2"
+mo_ar_stfrancis_lee_2014,2014,2015,D7,"Full EPT sample 2026-10-06: 2014-03-13..2015-03-24 (p01-p99), 10.8% of points 2015; official 2014"
+mo_ar_newmadrid_pemiscot_2014,2014,2015,D8,"Full EPT sample 2026-10-06: 2014-02-24..2015-02-13 (p01-p99), 7.8% of points 2015; official 2014"
+mo_ar_phillipsdesha_2014,2014,2014,D9,"Full EPT sample 2026-10-06: 2014-03-07..2015-03-23 (p01-p99), only 3.3% of points 2015 (below 5%); kept 2014"
+va_shenandoah_2014,2014,2015,D10,"3DEP LAZ sample 2026-10-06 (4 tiles): 2014-03-31..2014-04-06; too few tiles to rule out official end 2015-04-09; official 2014-2015 kept"
