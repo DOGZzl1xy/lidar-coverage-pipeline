@@ -8,7 +8,7 @@
 
 这个工具用来找出美国人口普查 county subdivision（镇、乡等）中缺少现代 LiDAR 的区域。它计算每个区域有多大比例的面积被 2015 年及以后采集的 LiDAR 覆盖，比例低于阈值（默认 5%）就记为缺口。可以按单个州、多个州或全美本土（48 州加 DC，`CONUS`）运行。分析只使用覆盖范围和元数据，不下载点云。
 
-2026-10-06 的全美结果见[报告页面](https://dogzzl1xy.github.io/lidar-coverage-pipeline/)：35,309 个区域中，只用 hobuinc 清单时有 2,306 个低于 5%，加上 USGS 官方 3DEP 索引后为 420 个。所有批次的采集日期都已用点云 GPS 时间核实。
+2026-10-06 的全美结果见[报告页面](https://dogzzl1xy.github.io/lidar-coverage-pipeline/)：35,309 个区域中，只用 hobuinc 清单时有 2,306 个低于 5%，加上 USGS 官方 3DEP 索引后为 420 个。所有 2,866 个批次都做了点云 GPS 时间抽样，其中 2,286 个得到了日期；其余 578 个没有可用的时间戳（多为 2006–2012 年数据），沿用批次名称或官方日期，另有 2 个无法读取。
 
 ### 安装
 
@@ -109,7 +109,7 @@ uv run python -m unittest discover -s tests
 
 Finds U.S. Census county subdivisions (towns, townships and similar units) that lack modern LiDAR. For each one it computes the share of the area covered by LiDAR collected in 2015 or later and reports a gap when that share is below a threshold (5% by default). It runs for one state, a list of states, or the contiguous 48 states plus DC (`CONUS`). The analysis uses footprints and metadata only and never downloads point clouds.
 
-The 2026-10-06 national results are in the [report](https://dogzzl1xy.github.io/lidar-coverage-pipeline/): of 35,309 county subdivisions, 2,306 fall below 5% with the hobuinc inventory alone and 420 after adding the official USGS 3DEP index. Every collection's acquisition date was checked against GPS times in its point cloud.
+The 2026-10-06 national results are in the [report](https://dogzzl1xy.github.io/lidar-coverage-pipeline/): of 35,309 county subdivisions, 2,306 fall below 5% with the hobuinc inventory alone and 420 after adding the official USGS 3DEP index. All 2,866 collections were sampled for point GPS times and 2,286 yielded dates; the other 578 have no usable timestamps (mostly 2006–2012 data) and keep their name or official year, and 2 could not be read.
 
 ### Install
 
