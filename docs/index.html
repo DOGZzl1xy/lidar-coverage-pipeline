@@ -106,7 +106,7 @@ footer { font-size: 12.5px; color: var(--muted); border-top: 1px solid var(--rul
     </header>
 
     <p class="bluf">I measured how much of each of the 35,309 county subdivisions in the 48 contiguous states and DC is covered by LiDAR collected in 2015 or later. When every collection USGS has published is counted, <strong>420 have less than 5% coverage</strong>. The hobuinc inventory named in the original brief gives 2,306, but most of that difference is published 3DEP data the inventory has not added yet. I recommend treating the 420 list as primary and keeping the 2,306 list as a secondary view.</p>
-    <p>The first version of this memo gave 396. Since then I sampled GPS times from the point clouds of all 2,866 collections to check their acquisition dates; 2,286 yielded dates. Corrected dates add 22 gaps, almost all in Allegan and Van Buren counties, Michigan; a newer inventory adds 2.</p>
+    <p>The first version of this memo gave 396. Since then I sampled point-cloud GPS times for all 2,866 collections to check their acquisition dates; 2,286 yielded dates. Corrected dates add 22 gaps, almost all in Allegan and Van Buren counties, Michigan; a newer inventory adds 2.</p>
 
     <div class="ask">
       <div class="label">Decision requested</div>
@@ -137,14 +137,14 @@ footer { font-size: 12.5px; color: var(--muted); border-top: 1px solid var(--rul
     </section>
 
     <section>
-      <h2>I sampled every collection's point cloud to check its date</h2>
-      <p>I read GPS times from a sample of points in all 2,866 collections: 2,274 in the hobuinc inventory and 592 found only in the official index. 2,286 yielded dates. Of those that also have official dates, 98.4% fall in the same years. The 37 that do not mostly point to errors in the official index: 9 list a single day that looks like a publication date, 9 have the right month and day but the wrong year, and 8 Illinois District 7 counties share one range that is 1 to 2 years late. The other 578, mostly flown 2006 to 2012, store no usable timestamps.</p>
+      <h2>I checked collection dates against point-cloud samples</h2>
+      <p>I read GPS times from a sample of points in all 2,866 collections: 2,274 in the hobuinc inventory and 592 found only in the official index. 2,286 yielded dates. Of those that also have official dates, 98.4% fall in the same years. The 37 that do not mostly point to errors in the official index: 9 list a single day that looks like a publication date, 9 have the right month and day but the wrong year, and 8 Illinois District 7 counties share one range that is 1 to 2 years late. Of the other 580, 552 (mostly flown 2006 to 2012) store no usable timestamps, 26 had no tiles on the USGS download service, and 2 could not be read; they keep their name or official year.</p>
       <p>For only 10 collections did the samples put the date on the other side of 2015 from the year the analysis used. I reviewed each and changed 8; the other 2 had too few 2015 points or too few tiles to overrule the official dates. All 10 now carry reviewed dates in the code (62 decisions in total, each with its evidence). Two of the changes affect the 420 list:</p>
       <ul>
         <li><code>MI_25County_AlleganCo_2015</code> was flown on December 7, 2014, not in 2015. This adds 27 gaps in Allegan and Van Buren counties.</li>
         <li><code>MI_LeelanauCo_2015</code> was flown in April 2015, not December 2014 as an earlier review found. This removes 5 gaps.</li>
       </ul>
-      <p>The others, in northern New York and the Missouri bootheel, change only the hobuinc list. Of the 48 earlier decisions the samples could test, all but the Leelanau one held.</p>
+      <p>The others, in northern New York and along the Mississippi in Missouri and Arkansas, change only the hobuinc list. Of the 48 earlier decisions the samples could test, all but the Leelanau one held.</p>
       <div class="legend">
         <span><i class="ramp"></i>&nbsp;measured median year, 2000 to 2025</span>
         <span><i class="sw" style="background:#8a929a"></i>no usable timestamps</span>
@@ -159,7 +159,7 @@ footer { font-size: 12.5px; color: var(--muted); border-top: 1px solid var(--rul
     <section>
       <h2>The hobuinc list still matters if the next step needs streamable point clouds</h2>
       <p>The main argument for the 2,306 list is access. Collections in the hobuinc inventory can be streamed from usgs.entwine.io. The extra collections in the official index are only available as LAZ downloads from USGS. If later work depends on streaming point clouds, the 2,306 list shows where that is not possible today. If the question is only where modern LiDAR exists, the 420 list is the accurate one.</p>
-      <p>The 420 list has two limits. For the 578 collections without usable timestamps it takes official dates at face value, and the 592 official-index collections were sampled at only 4 tiles each. Its footprints are also simplified to about 50 m, so towns near a collection edge may shift slightly.</p>
+      <p>The 420 list has two limits. For the 580 collections that yielded no date it takes the name or official year at face value, and the 592 official-index collections were sampled at only 4 tiles each. Its footprints are also simplified to about 50 m, so towns near a collection edge may shift slightly.</p>
     </section>
 
     <section>

@@ -39,8 +39,9 @@ NC has only 2001 data in both sources.
   either source; MN and KY summaries carry a note.
 - Outside the 62 reviewed collections, vintages come from names (inventory) or
   official dates (3DEP index). The 2026-10-06 point sampling checked these
-  against GPS times where possible, but 578 collections (mostly 2006–2012) have
-  no usable timestamps and keep their name or official year, and 3DEP-only
+  against GPS times where possible, but 580 collections yielded no date (552
+  without usable timestamps, mostly 2006–2012; 26 without downloadable tiles;
+  2 unreadable) and keep their name or official year, and 3DEP-only
   collections were sampled at 4 tiles each. 3DEP footprints are generalized to
   ~50 m.
 - The hobuinc inventory is regenerated almost daily (43 footprints changed by
@@ -82,16 +83,18 @@ CONUS.
 
 ### Point-cloud date check (2026-10-06)
 
-GPS times were sampled from all 2,866 collections (2,274 inventory, 592
+GPS-time sampling covered all 2,866 collections (2,274 inventory, 592
 official-index only): 8–32 EPT nodes per inventory collection, the first
 100,000 points of 4 LAZ tiles per 3DEP-only work unit. 2,286 yielded dates;
-of those with official dates, 98.4% fall in the same years. 578 have no usable
-timestamps and 2 could not be read. Most of the 37 mismatches trace to the
-official index (single-day dates that look like publication dates, years off by
-one or two with matching month and day, and one shared Illinois District 7
-range). The sampling scripts and raw results lived on the `vintage-sampling`
-branch (last commit `5e2b59d`), which was deleted after the review; the
-evidence for each decision is in the table.
+of those with official dates, 98.4% fall in the same years. 552 have no usable
+timestamps, 26 had no tiles on the USGS download service, and 2 could not be
+read. Of the 37 year mismatches, 9 have a single-day official date that looks
+like a publication date, 9 have the right month and day but an official year
+off by one or two, and 8 are Illinois District 7 counties sharing one official
+range 1–2 years late. Of the 48 earlier A–C decisions the samples could test,
+all but B20 (`MI_LeelanauCo_2015`, now D1) held. The sampling scripts and raw
+results lived on the `vintage-sampling` branch (last commit `5e2b59d`), which
+was deleted after the review; the evidence for each decision is in the table.
 
 ## Decisions
 
